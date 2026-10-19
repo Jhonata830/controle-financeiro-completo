@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Controle Financeiro 2</title>
+  <desc id="desc">Organize suas finanças com clareza. Identidade visual grafite e verde vibrante.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1110"/>
+      <stop offset="1" stop-color="#111b18"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6dff9a"/>
+      <stop offset="1" stop-color="#12c96b"/>
+    </linearGradient>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M36 0H0V36" fill="none" stroke="#244137" stroke-width="1" opacity=".34"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="360" rx="26" fill="url(#bg)"/>
+  <rect width="1200" height="360" rx="26" fill="url(#grid)"/>
+  <circle cx="1000" cy="100" r="180" fill="#10b981" opacity=".08"/>
+  <circle cx="1000" cy="100" r="120" fill="none" stroke="#20d879" stroke-width="1.5" opacity=".22"/>
+  <circle cx="1000" cy="100" r="82" fill="none" stroke="#20d879" stroke-width="1.5" opacity=".28"/>
+  <path d="M760 255 C830 230 870 265 930 210 S1040 180 1120 112" fill="none" stroke="url(#accent)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M760 255 C830 230 870 265 930 210 S1040 180 1120 112 L1120 300 L760 300Z" fill="#16c784" opacity=".09"/>
+  <g transform="translate(78 82)">
+    <rect width="58" height="58" rx="16" fill="url(#accent)"/>
+    <path d="M15 31h10l7-13 8 22 7-12h8" fill="none" stroke="#082016" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="0" y="112" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="48" font-weight="750" fill="#f1f7f3">Controle Financeiro <tspan fill="#4df58a">2</tspan></text>
+    <text x="2" y="155" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" fill="#a7bbb0">Mais clareza para cuidar do seu dinheiro.</text>
+    <rect x="0" y="187" width="172" height="36" rx="18" fill="#123b2a" stroke="#24764b"/>
+    <circle cx="18" cy="205" r="5" fill="#4df58a"/>
+    <text x="32" y="210" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" font-weight="650" letter-spacing="1.2" fill="#b8ffd0">FINANÇAS PESSOAIS</text>
+  </g>
+</svg>
