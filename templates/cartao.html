@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+{% block title %}Cartão de Crédito — Controle Financeiro{% endblock %}
+
+{% block content %}
+<header class="topbar">
+    <div>
+        <p class="eyebrow">Compras e faturas</p>
+        <h1>Cartões de Crédito</h1>
+    </div>
+
+    <a class="button secondary" href="{{ url_for('dashboard') }}">Voltar ao Dashboard</a>
+</header>
+
+
+
+<section class="panel credit-card-list-panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Carteira</p>
+            <h2>Meus cartões</h2>
+        </div>
+        <a class="button" href="{{ url_for('cartao', novo=1) }}">+ Novo cartão</a>
+    </div>
+
+    <div class="credit-card-list">
+        {% for item in cartoes %}
+            <a
+                class="credit-card-item {% if config and item['id'] == config['id'] %}selected{% endif %}"
+                href="{{ url_for('cartao', cartao_id=item['id']) }}"
+            >
+                <span class="credit-card-item-icon">▣</span>
+                <span class="credit-card-item-main">
+                    <strong>{{ item['nome'] }}</strong>
+                    <small>Fecha dia {{ item['dia_fechamento'] }} · vence dia {{ item['dia_vencimento'] }}</small>
+                </span>
+                <span class="badge {% if item['ativo'] %}ativa{% else %}inativa{% endif %}">
+                    {{ 'Ativo' if item['ativo'] else 'Inativo' }}
+                </span>
+            </a>
+        {% else %}
+            <div class="credit-card-empty-list">
+                Nenhum cartão cadastrado. Clique em <strong>+ Novo cartão</strong> para começar.
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% if novo_cartao or not config %}
+<section class="panel credit-card-config-panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Novo cartão</p>
+            <h2>Cadastrar cartão</h2>
+        </div>
+        <a class="button ghost" href="{{ url_for('cartao') }}">Cancelar</a>
+    </div>
+{% elif config %}
+<section class="panel credit-card-config-panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Configuração</p>
+            <h2>{{ config['nome'] }}</h2>
+        </div>
+        <span class="badge {% if config['ativo'] %}ativa{% else %}inativa{% endif %}">
+            {{ 'Ativo' if config['ativo'] else 'Inativo' }}
+        </span>
+    </div>
+{% endif %}
+
+{% if novo_cartao or not config or config %}
+    {% if novo_cartao or not config or config %}
+    <form method="post" action="{{ url_for('salvar_config_cartao') }}" class="credit-card-config-form">
+        {% if config and not novo_cartao %}
+            <input type="hidden" name="cartao_id" value="{{ config['id'] }}">
+        {% endif %}
+
+        <label class="wide">
+            Nome do cartão
+            <input
+                name="nome"
+                required
+                maxlength="60"
+                value="{{ config['nome'] if config and not novo_cartao else '' }}"
+                placeholder="Ex.: Nubank, Inter, Santander..."
+            >
+        </label>
+
+        <label>
+            Dia de fechamento
+            <input type="number" name="dia_fechamento" min="1" max="31" required value="{{ config['dia_fechamento'] if config and not novo_cartao else 20 }}">
+        </label>
+
+        <label>
+            Dia de vencimento
+            <input type="number" name="dia_vencimento" min="1" max="31" required value="{{ config['dia_vencimento'] if config and not novo_cartao else 10 }}">
+        </label>
+
+        <label>
+            Limite do cartão
+            <input
+                name="limite"
+                inputmode="decimal"
+                value="{{ ('%.2f'|format(config['limite'])|replace('.', ',')) if config and config['limite'] else '' }}"
+                placeholder="Opcional"
+            >
+        </label>
+
+        <label class="credit-card-switch">
+            <span>Usar cartão no aplicativo</span>
+            <select name="ativo">
+                <option value="1" {% if (config and config['ativo'] and not novo_cartao) or novo_cartao %}selected{% endif %}>Ativo</option>
+                <option value="0" {% if config and not config['ativo'] and not novo_cartao %}selected{% endif %}>Inativo</option>
+            </select>
+        </label>
+
+        <div class="form-actions">
+            <button type="submit">{{ 'Adicionar cartão' if novo_cartao or not config else 'Salvar configuração' }}</button>
+        </div>
+    </form>
+
+    <p class="credit-card-help">
+        Exemplo: com fechamento no dia 20, uma compra feita até o fechamento efetivo entra na
+        fatura daquele mês e vence no mês seguinte. Se o fechamento ou o vencimento cair em
+        sábado, domingo ou feriado nacional, o sistema automaticamente passa a data para o próximo dia útil.
+    </p>
+    {% endif %}
+</section>
+{% endif %}
+
+{% if config %}
+<section class="credit-card-summary-grid">
+    <article class="credit-card-summary">
+        <span>Fatura em aberto</span>
+        <strong>{{ fatura_mes_total|moeda }}</strong>
+        <small>somente a fatura de {{ periodo_fatura_nome }}</small>
+    </article>
+
+    <article class="credit-card-summary">
+        <span>Limite disponível</span>
+        {% if limite_disponivel is not none %}
+            <strong>{{ limite_disponivel|moeda }}</strong>
+            <small>considerando os gastos de {{ periodo_fatura_nome }} · compra parcelada compromete o valor total</small>
+        {% else %}
+            <strong>Não informado</strong>
+            <small>cadastre um limite para acompanhar</small>
+        {% endif %}
+    </article>
+
+    <article class="credit-card-summary">
+        <span>Serviços mensais</span>
+        <strong>{{ servicos_total|moeda }}</strong>
+        <small>somente as cobranças de {{ periodo_fatura_nome }}</small>
+    </article>
+</section>
+
+
+
+{% if config['ativo'] %}
+<section class="panel form-panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">{% if compra_edicao %}Alteração{% else %}Novo lançamento{% endif %}</p>
+            <h2>{% if compra_edicao %}Alterar compra{% else %}Adicionar compra em {{ config['nome'] }}{% endif %}</h2>
+        </div>
+        {% if compra_edicao %}
+            <a class="button ghost" href="{{ url_for('cartao', cartao_id=config['id'], fatura=fatura_selecionada['id']) }}">Cancelar alteração</a>
+        {% endif %}
+    </div>
+
+    <form method="post" action="{{ url_for('salvar_compra_cartao') }}" class="expense-form">
+        <input type="hidden" name="cartao_id" value="{{ config['id'] }}">
+        {% if compra_edicao %}<input type="hidden" name="id" value="{{ compra_edicao['id'] }}">{% endif %}
+        {% if fatura_selecionada %}<input type="hidden" name="fatura" value="{{ fatura_selecionada['id'] }}">{% endif %}
+
+        <label class="wide">
+            Descrição
+            <input name="descricao" required value="{{ compra_edicao['descricao'] if compra_edicao else '' }}" placeholder="Ex.: Supermercado">
+        </label>
+
+        <label>
+            Valor total da compra
+            <input name="valor" required inputmode="decimal" value="{{ ('%.2f'|format(compra_edicao['valor'])|replace('.', ',')) if compra_edicao else '' }}" placeholder="0,00">
+        </label>
+
+        <label>
+            Número de parcelas
+            <input type="number" name="parcelas" id="cartao-parcelas" min="1" max="60" step="1" required value="{{ compra_edicao['parcelas'] if compra_edicao else 1 }}">
+        </label>
+
+        <label>
+            Categoria
+            <select name="categoria" required>
+                <option value="">Selecione</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria }}" {% if compra_edicao and compra_edicao['categoria'] == categoria %}selected{% endif %}>{{ categoria }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Data da compra
+            <input type="date" name="data_compra" required value="{{ compra_edicao['data_html'] if compra_edicao else data_hoje }}">
+        </label>
+
+        <div class="credit-card-auto-info">
+            <strong>Parcelamento calculado automaticamente</strong>
+            <span>
+                <span id="cartao-parcela-preview">Informe o valor e as parcelas para ver o cálculo.</span>
+                As parcelas seguintes irão para as próximas faturas de <strong>{{ config['nome'] }}</strong>.
+            </span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">{% if compra_edicao %}Salvar alteração{% else %}Adicionar compra{% endif %}</button>
+        </div>
+    </form>
+</section>
+{% else %}
+<section class="panel credit-card-disabled">
+    <div class="credit-card-disabled-icon">▣</div>
+    <div>
+        <h2>{{ config['nome'] }} está inativo</h2>
+        <p>O histórico e as faturas continuam disponíveis, mas novas compras só podem ser lançadas quando o cartão estiver ativo.</p>
+    </div>
+</section>
+{% endif %}
+
+<section class="panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">{{ config['nome'] }}</p>
+            <h2>Fatura de {{ periodo_fatura_nome }}</h2>
+        </div>
+        <span class="count">{{ faturas|length }} registrada(s)</span>
+    </div>
+
+    <div class="credit-card-month-nav">
+        <a class="mini-button" href="{{ url_for('cartao', cartao_id=config['id'], mes=mes_fatura_anterior, ano=ano_fatura_anterior) }}">‹ Mês anterior</a>
+        <strong>{{ periodo_fatura_nome }}</strong>
+        <a class="mini-button" href="{{ url_for('cartao', cartao_id=config['id'], mes=mes_fatura_proxima, ano=ano_fatura_proxima) }}">Próximo mês ›</a>
+    </div>
+
+    <p class="credit-card-help credit-card-invoice-list-help">
+        Aqui aparece somente a fatura registrada no mês selecionado. O pagamento da fatura continua sendo controlado pela despesa correspondente em <strong>Despesas Gerais</strong>.
+    </p>
+
+    <div class="table-wrap">
+        <table class="actions-table">
+            <thead>
+                <tr>
+                    <th>Fatura</th><th>Fechamento</th><th>Vencimento</th><th>Parcela</th><th class="money">Total</th><th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fatura in faturas %}
+                    <tr class="{% if fatura_selecionada and fatura['id'] == fatura_selecionada['id'] %}credit-card-selected-row{% endif %}">
+                        <td>{{ fatura['competencia'][5:] }}/{{ fatura['competencia'][:4] }}</td>
+                        <td>{{ fatura['data_fechamento'] }}</td>
+                        <td>{{ fatura['data_vencimento'] }}</td>
+                        <td><strong>{{ fatura['parcela'] }}</strong></td>
+                        <td class="money">{{ fatura['total']|moeda }}</td>
+                        <td>
+                            <div class="row-actions">
+                                <a class="mini-button" href="{{ url_for('cartao', cartao_id=config['id'], fatura=fatura['id']) }}">Editar compras</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="empty">Nenhuma fatura registrada para este cartão em {{ periodo_fatura_nome }}.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% if fatura_selecionada %}
+<section class="panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Detalhamento</p>
+            <h2>Fatura {{ fatura_selecionada['competencia'][5:] }}/{{ fatura_selecionada['competencia'][:4] }}</h2>
+        </div>
+        <div class="credit-card-invoice-total">{{ fatura_selecionada['total']|moeda }}</div>
+    </div>
+
+    <p class="credit-card-invoice-note">
+        {{ config['nome'] }} · Fechamento: <strong>{{ fatura_selecionada['data_fechamento'] }}</strong>
+        · Vencimento: <strong>{{ fatura_selecionada['data_vencimento'] }}</strong>
+    </p>
+
+    <div class="table-wrap">
+        <table class="actions-table">
+            <thead><tr><th>Descrição</th><th>Categoria</th><th>Data da cobrança</th><th>Parcela</th><th class="money">Valor</th><th>Ações</th></tr></thead>
+            <tbody>
+                {% for item in compras %}
+                    <tr>
+                        <td>
+                            {{ item['descricao'] }}
+                            {% if item['total_parcelas']|int > 1 %}<small class="credit-card-installment-total">Total: {{ item['valor_total']|moeda }}</small>{% endif %}
+                        </td>
+                        <td>{{ item['categoria'] }}</td>
+                        <td>{{ item['data_compra'] }}</td>
+                        <td>{{ item['numero_parcela'] }}/{{ item['total_parcelas'] }}</td>
+                        <td class="money">{{ item['valor_parcela']|moeda }}</td>
+                        <td>
+                            {% if fatura_selecionada['status'] != 'Paga' %}
+                                <div class="row-actions">
+                                    <a class="mini-button" href="{{ url_for('cartao', cartao_id=config['id'], fatura=fatura_selecionada['id'], editar=item['id']) }}">Editar</a>
+                                    <form method="post" action="{{ url_for('excluir_compra_cartao', compra_id=item['id']) }}" onsubmit="return confirm('Deseja realmente excluir esta compra e todas as suas parcelas?');">
+                                        <button class="mini-button danger" type="submit">Excluir</button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <span class="credit-card-locked">Fatura paga</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                {% for servico in servicos_fatura %}
+                    <tr class="credit-card-service-row">
+                        <td><strong>{{ servico['descricao'] }}</strong></td>
+                        <td>{{ servico['categoria'] }}</td>
+                        <td>{{ servico['data_cobranca'] or '—' }}</td>
+                        <td>Mensal</td>
+                        <td class="money">{{ servico['valor']|moeda }}</td>
+                        <td><span class="credit-card-locked">Cobrança recorrente</span></td>
+                    </tr>
+                {% endfor %}
+
+                {% if not compras and not servicos_fatura %}
+                    <tr><td colspan="6" class="empty">Nenhum lançamento nesta fatura.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</section>
+{% endif %}
+
+<section class="panel credit-card-services-panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Cobranças recorrentes</p>
+            <h2>Cobranças recorrentes</h2>
+        </div>
+        <span class="count">{{ servicos|length }} ativo(s)</span>
+    </div>
+
+    <p class="credit-card-help credit-card-service-help">
+        Cadastre serviços como Netflix, Spotify, Prime Video, academia ou qualquer outra cobrança
+        mensal. O valor será lançado automaticamente nas próximas faturas deste cartão.
+        Ao encerrar um serviço, as próximas faturas deixam de receber a cobrança; o histórico
+        que já foi pago ou já venceu permanece preservado.
+    </p>
+
+    <div class="credit-card-recurring-list-title">
+        <p class="eyebrow">Cobranças recorrentes</p>
+        <h3>Serviços cadastrados</h3>
+    </div>
+
+    <div class="table-wrap credit-card-services-table">
+        <table class="actions-table">
+            <thead>
+                <tr><th>Serviço</th><th>Categoria</th><th>Primeira cobrança</th><th class="money">Valor/mês</th><th>Ação</th></tr>
+            </thead>
+            <tbody>
+                {% for servico in servicos %}
+                    <tr>
+                        <td><strong>{{ servico['descricao'] }}</strong></td>
+                        <td>{{ servico['categoria'] }}</td>
+                        <td>{{ servico['data_inicio'] }}</td>
+                        <td class="money">{{ servico['valor']|moeda }}</td>
+                        <td>
+                            <div class="row-actions">
+                                <a class="mini-button" href="{{ url_for('cartao', cartao_id=config['id'], editar_servico=servico['id']) }}">Editar</a>
+                                <form method="post" action="{{ url_for('excluir_servico_cartao', servico_id=servico['id']) }}" onsubmit="return confirm('Deseja encerrar este serviço mensal? As próximas faturas deixarão de receber essa cobrança.');">
+                                    <button class="mini-button danger" type="submit">Encerrar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="empty">Nenhum serviço mensal cadastrado para este cartão.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if config['ativo'] %}
+    <div class="credit-card-recurring-add-title">
+        <p class="eyebrow">{% if servico_edicao %}Editar cobrança recorrente{% else %}Nova cobrança recorrente{% endif %}</p>
+        <h3>{% if servico_edicao %}Editar serviço mensal{% else %}Adicionar serviço mensal{% endif %}</h3>
+    </div>
+    <form method="post" action="{{ url_for('salvar_servico_cartao') }}" class="credit-card-service-form">
+        <input type="hidden" name="cartao_id" value="{{ config['id'] }}">
+        {% if servico_edicao %}<input type="hidden" name="id" value="{{ servico_edicao['id'] }}">{% endif %}
+
+        <label class="wide">
+            Serviço
+            <input name="descricao" required maxlength="80" value="{{ servico_edicao['descricao'] if servico_edicao else '' }}" placeholder="Ex.: Netflix, Spotify, Prime Video...">
+        </label>
+
+        <label>
+            Valor mensal
+            <input name="valor" required inputmode="decimal" value="{{ ('%.2f'|format(servico_edicao['valor'])|replace('.', ',')) if servico_edicao else '' }}" placeholder="0,00">
+        </label>
+
+        <label>
+            Categoria
+            <select name="categoria" required>
+                <option value="">Selecione</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria }}" {% if servico_edicao and categoria == servico_edicao['categoria'] %}selected{% endif %}>{{ categoria }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Primeira cobrança
+            <input type="date" name="data_inicio" required value="{{ servico_edicao['data_html'] if servico_edicao else data_hoje }}">
+        </label>
+
+        <div class="credit-card-auto-info">
+            <strong>Recorrência automática</strong>
+            <span>O sistema usa o fechamento do cartão para definir a primeira fatura e repete o serviço mensalmente enquanto ele estiver ativo. Ao editar, as faturas ainda abertas/futuras são recalculadas; o histórico já pago ou vencido permanece preservado.</span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">{{ 'Salvar alterações' if servico_edicao else 'Adicionar serviço mensal' }}</button>
+            {% if servico_edicao %}
+                <a class="button ghost" href="{{ url_for('cartao', cartao_id=config['id']) }}">Cancelar</a>
+            {% endif %}
+        </div>
+    </form>
+    {% endif %}
+
+
+
+
+
+
+{% endif %}
+
+<script>
+(function () {
+    const valorInput = document.querySelector('input[name="valor"]');
+    const parcelasInput = document.querySelector('input[name="parcelas"]');
+    const preview = document.getElementById('cartao-parcela-preview');
+    if (!valorInput || !parcelasInput || !preview) return;
+
+    function parseValor(texto) {
+        let valor = String(texto || '').trim().replace(/R\$/g, '').replace(/\s/g, '');
+        if (!valor) return 0;
+        if (valor.includes(',')) valor = valor.replace(/\./g, '').replace(',', '.');
+        const numero = Number(valor);
+        return Number.isFinite(numero) ? numero : 0;
+    }
+
+    function moeda(valor) {
+        return valor.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+    }
+
+    function atualizarPreview() {
+        const total = parseValor(valorInput.value);
+        const parcelas = Math.max(1, Math.min(60, parseInt(parcelasInput.value || '1', 10)));
+        if (total <= 0) {
+            preview.textContent = 'Informe o valor e as parcelas para ver o cálculo.';
+            return;
+        }
+        const totalCentavos = Math.round(total * 100);
+        const baseCentavos = Math.floor(totalCentavos / parcelas);
+        const ultimoCentavos = baseCentavos + (totalCentavos % parcelas);
+        if (parcelas === 1) {
+            preview.textContent = 'À vista: ' + moeda(total) + '.';
+            return;
+        }
+        const base = baseCentavos / 100;
+        const ultimo = ultimoCentavos / 100;
+        const ajuste = ultimo !== base;
+        preview.textContent = parcelas + 'x de ' + moeda(base)
+            + (ajuste ? ', com ajuste na última parcela (' + moeda(ultimo) + ')' : '.')
+            + ' — as parcelas seguintes irão para as próximas faturas.';
+    }
+
+    valorInput.addEventListener('input', atualizarPreview);
+    parcelasInput.addEventListener('input', atualizarPreview);
+    atualizarPreview();
+})();
+</script>
+{% endblock %}

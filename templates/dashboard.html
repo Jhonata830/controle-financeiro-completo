@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="topbar">
+    <div>
+        <p class="eyebrow">Visão geral</p>
+        <h1>Dashboard</h1>
+    </div>
+
+    <form method="get" class="filters">
+        <label>
+            Mês
+            <select name="mes">
+                {% for numero, nome in meses.items() %}
+                    <option
+                        value="{{ numero }}"
+                        {% if numero == mes %}selected{% endif %}
+                    >
+                        {{ nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Ano
+            <select name="ano">
+                {% for item in anos %}
+                    <option
+                        value="{{ item }}"
+                        {% if item == ano %}selected{% endif %}
+                    >
+                        {{ item }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button type="submit">Aplicar</button>
+    </form>
+</header>
+
+<section class="cards">
+    <article class="card metric-card metric-previous">
+        <div class="metric-top"><span class="metric-icon">↶</span><span>Saldo mês anterior</span></div>
+        <strong>{{ saldo_anterior|moeda }}</strong>
+    </article>
+
+    <article class="card metric-card metric-income">
+        <div class="metric-top"><span class="metric-icon">↑</span><span>Receitas</span></div>
+        <strong>{{ receitas|moeda }}</strong>
+    </article>
+
+    <article class="card metric-card metric-paid">
+        <div class="metric-top"><span class="metric-icon">✓</span><span>Despesas pagas</span></div>
+        <strong>{{ despesas_pagas|moeda }}</strong>
+    </article>
+
+    <article class="card metric-card metric-pending">
+        <div class="metric-top"><span class="metric-icon">!</span><span>Despesas pendentes</span></div>
+        <strong>{{ despesas_pendentes|moeda }}</strong>
+    </article>
+
+    <article class="card metric-card metric-balance featured">
+        <div class="metric-top"><span class="metric-icon">●</span><span>Saldo atual</span></div>
+        <strong>{{ saldo_atual|moeda }}</strong>
+    </article>
+
+    <article class="card metric-card metric-forecast featured">
+        <div class="metric-top"><span class="metric-icon">◎</span><span>Saldo previsto</span></div>
+        <strong>{{ saldo_previsto|moeda }}</strong>
+    </article>
+</section>
+
+<section class="yield-dashboard-card {% if config_rendimento and config_rendimento['ativo'] %}active{% else %}inactive{% endif %}">
+    <div class="yield-dashboard-main">
+        <div class="yield-dashboard-heading">
+            <span class="yield-icon">%</span>
+            <div>
+                <p class="eyebrow">Rendimento do saldo</p>
+                <h2>Mercado Pago</h2>
+            </div>
+        </div>
+
+        {% if config_rendimento and config_rendimento["ativo"] %}
+            <span class="yield-status active">Ativo</span>
+        {% else %}
+            <span class="yield-status">Desativado</span>
+        {% endif %}
+    </div>
+
+    {% if config_rendimento and config_rendimento["ativo"] %}
+        <div class="yield-dashboard-stats">
+            <div>
+                <span>CDI contratado</span>
+                <strong>{{ "%.2f"|format(config_rendimento["percentual_cdi"]) }}%</strong>
+            </div>
+
+            <div>
+                <span>CDI anual</span>
+                <strong>{{ "%.2f"|format(config_rendimento["taxa_anual"]) }}% a.a.</strong>
+            </div>
+
+            <div>
+                <span>Último crédito líquido</span>
+                {% if ultimo_rendimento %}
+                    <strong class="positive">+ {{ ultimo_rendimento["rendimento"]|moeda }}</strong>
+                    <small>{{ ultimo_rendimento["data_credito"] }}</small>
+                {% else %}
+                    <strong>—</strong>
+                    <small>Aguardando primeiro dia útil</small>
+                {% endif %}
+            </div>
+
+            <div>
+                <span>Próximo líquido estimado</span>
+                <strong class="positive">+ {{ estimativa_rendimento["valor"]|moeda }}</strong>
+                <small>
+                    bruto {{ estimativa_rendimento["valor_bruto"]|moeda }}
+                    · IR {{ "%.2f"|format(estimativa_rendimento["aliquota_ir"]) }}%
+                    · crédito {{ estimativa_rendimento["data_credito"] }}
+                </small>
+            </div>
+        </div>
+    {% else %}
+        <p class="yield-dashboard-description">
+            Configure a taxa anual e o percentual do CDI para o saldo render automaticamente a cada dia útil.
+        </p>
+    {% endif %}
+
+    <a class="button secondary" href="{{ url_for('rendimento') }}">
+        Configurar rendimento
+    </a>
+</section>
+
+<div class="dashboard-columns">
+<section class="panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Dia a dia</p>
+                <h2>Despesas Gerais</h2>
+            </div>
+
+            <a
+                class="button secondary"
+                href="{{ url_for('despesas', mes=mes, ano=ano) }}"
+            >
+                Gerenciar
+            </a>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th class="money">Valor</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in despesas_gerais %}
+                        <tr>
+                            <td>{{ item["descricao"] }}</td>
+                            <td>{{ item["data"] or "-" }}</td>
+                            <td>
+                                <span class="badge {{ item['status']|lower }}">
+                                    {{ item["status"] }}
+                                </span>
+                            </td>
+                            <td class="money">
+                                {{ item["valor"]|moeda }}
+                            </td>
+                        </tr>
+
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="empty">
+                                Nenhuma despesa geral.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+<section class="panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Entradas</p>
+            <h2>Receitas do mês</h2>
+        </div>
+
+        <a
+            class="button secondary"
+            href="{{ url_for('receitas', mes=mes, ano=ano) }}"
+        >
+            Gerenciar receitas
+        </a>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Data</th>
+                    <th class="money">Valor</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in receitas_lista %}
+                    <tr>
+                        <td>{{ item["descricao"] }}</td>
+                        <td>{{ item["categoria"] }}</td>
+                        <td>{{ item["data"] or "-" }}</td>
+                        <td class="money">
+                            {{ item["valor"]|moeda }}
+                        </td>
+                    </tr>
+
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="empty">
+                            Nenhuma receita neste período.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+</div>
+
+<section class="panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Recorrentes</p>
+                <h2>Despesas Fixas</h2>
+            </div>
+
+            <a
+                class="button secondary"
+                href="{{ url_for('despesas_fixas', mes=mes, ano=ano) }}"
+            >
+                Gerenciar
+            </a>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Vencimento</th>
+                        <th>Status</th>
+                        <th class="money">Valor</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in despesas_fixas_lista %}
+                        <tr>
+                            <td>{{ item["descricao"] }}</td>
+                            <td>{{ item["data"] or "-" }}</td>
+                            <td>
+                                <span class="badge {{ item['status']|lower }}">
+                                    {{ item["status"] }}
+                                </span>
+                            </td>
+                            <td class="money">
+                                {{ item["valor"]|moeda }}
+                            </td>
+                        </tr>
+
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="empty">
+                                Nenhuma despesa fixa.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

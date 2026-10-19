@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}Categorias — Controle Financeiro{% endblock %}
+
+{% block content %}
+<header class="topbar">
+    <div>
+        <p class="eyebrow">Configuração</p>
+        <h1>Categorias</h1>
+    </div>
+</header>
+
+<section class="category-intro">
+    <strong>Gerencie as categorias usadas no sistema</strong>
+    <p>
+        Ao renomear uma categoria, os lançamentos antigos são atualizados
+        automaticamente. Para excluir uma categoria que já está em uso,
+        escolha outra categoria para receber esses lançamentos.
+    </p>
+</section>
+
+<div class="category-admin-columns">
+    <section class="panel category-admin-panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Saídas</p>
+                <h2>Categorias de Despesas</h2>
+            </div>
+        </div>
+
+        <form
+            method="post"
+            action="{{ url_for('adicionar_categoria') }}"
+            class="category-add-form"
+        >
+            <input
+                type="hidden"
+                name="tipo"
+                value="despesa"
+            >
+
+            <label>
+                Nova categoria
+                <input
+                    name="nome"
+                    required
+                    maxlength="60"
+                    placeholder="Ex.: Pets"
+                >
+            </label>
+
+            <button type="submit">
+                Adicionar
+            </button>
+        </form>
+
+        <div class="category-admin-list">
+            {% for item in categorias_despesas %}
+                <article class="category-admin-item">
+                    <div class="category-admin-head">
+                        <div>
+                            <strong>{{ item["nome"] }}</strong>
+                            <span>
+                                {{ item["uso"] }}
+                                {% if item["uso"] == 1 %}
+                                    uso
+                                {% else %}
+                                    usos
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <form
+                        method="post"
+                        action="{{ url_for('renomear_categoria', categoria_id=item['id']) }}"
+                        class="category-inline-form"
+                    >
+                        <input
+                            name="novo_nome"
+                            required
+                            maxlength="60"
+                            value="{{ item['nome'] }}"
+                            aria-label="Novo nome para {{ item['nome'] }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="mini-button"
+                        >
+                            Renomear
+                        </button>
+                    </form>
+
+                    <form
+                        method="post"
+                        action="{{ url_for('excluir_categoria', categoria_id=item['id']) }}"
+                        class="category-delete-form"
+                        onsubmit="return confirm('Deseja realmente excluir a categoria {{ item['nome'] }}?');"
+                    >
+                        <label>
+                            {% if item["uso"] > 0 %}
+                                Mover lançamentos para
+                            {% else %}
+                                Substituir por (opcional)
+                            {% endif %}
+
+                            <select
+                                name="substituta_id"
+                                {% if item["uso"] > 0 %}required{% endif %}
+                            >
+                                <option value="">
+                                    {% if item["uso"] > 0 %}
+                                        Selecione uma categoria
+                                    {% else %}
+                                        Não é necessário
+                                    {% endif %}
+                                </option>
+
+                                {% for alternativa in categorias_despesas %}
+                                    {% if alternativa["id"] != item["id"] %}
+                                        <option value="{{ alternativa['id'] }}">
+                                            {{ alternativa["nome"] }}
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </label>
+
+                        <button
+                            type="submit"
+                            class="mini-button danger"
+                        >
+                            Excluir
+                        </button>
+                    </form>
+                </article>
+            {% else %}
+                <p class="empty">
+                    Nenhuma categoria de despesa cadastrada.
+                </p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="panel category-admin-panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Entradas</p>
+                <h2>Categorias de Receitas</h2>
+            </div>
+        </div>
+
+        <form
+            method="post"
+            action="{{ url_for('adicionar_categoria') }}"
+            class="category-add-form"
+        >
+            <input
+                type="hidden"
+                name="tipo"
+                value="receita"
+            >
+
+            <label>
+                Nova categoria
+                <input
+                    name="nome"
+                    required
+                    maxlength="60"
+                    placeholder="Ex.: Rendimentos"
+                >
+            </label>
+
+            <button type="submit">
+                Adicionar
+            </button>
+        </form>
+
+        <div class="category-admin-list">
+            {% for item in categorias_receitas %}
+                <article class="category-admin-item">
+                    <div class="category-admin-head">
+                        <div>
+                            <strong>{{ item["nome"] }}</strong>
+                            <span>
+                                {{ item["uso"] }}
+                                {% if item["uso"] == 1 %}
+                                    uso
+                                {% else %}
+                                    usos
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <form
+                        method="post"
+                        action="{{ url_for('renomear_categoria', categoria_id=item['id']) }}"
+                        class="category-inline-form"
+                    >
+                        <input
+                            name="novo_nome"
+                            required
+                            maxlength="60"
+                            value="{{ item['nome'] }}"
+                            aria-label="Novo nome para {{ item['nome'] }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="mini-button"
+                        >
+                            Renomear
+                        </button>
+                    </form>
+
+                    <form
+                        method="post"
+                        action="{{ url_for('excluir_categoria', categoria_id=item['id']) }}"
+                        class="category-delete-form"
+                        onsubmit="return confirm('Deseja realmente excluir a categoria {{ item['nome'] }}?');"
+                    >
+                        <label>
+                            {% if item["uso"] > 0 %}
+                                Mover lançamentos para
+                            {% else %}
+                                Substituir por (opcional)
+                            {% endif %}
+
+                            <select
+                                name="substituta_id"
+                                {% if item["uso"] > 0 %}required{% endif %}
+                            >
+                                <option value="">
+                                    {% if item["uso"] > 0 %}
+                                        Selecione uma categoria
+                                    {% else %}
+                                        Não é necessário
+                                    {% endif %}
+                                </option>
+
+                                {% for alternativa in categorias_receitas %}
+                                    {% if alternativa["id"] != item["id"] %}
+                                        <option value="{{ alternativa['id'] }}">
+                                            {{ alternativa["nome"] }}
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </label>
+
+                        <button
+                            type="submit"
+                            class="mini-button danger"
+                        >
+                            Excluir
+                        </button>
+                    </form>
+                </article>
+            {% else %}
+                <p class="empty">
+                    Nenhuma categoria de receita cadastrada.
+                </p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

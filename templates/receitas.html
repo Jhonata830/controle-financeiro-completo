@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block title %}Receitas — Controle Financeiro{% endblock %}
+
+{% block content %}
+<header class="topbar">
+    <div>
+        <p class="eyebrow">Entradas do período</p>
+        <h1>Receitas</h1>
+    </div>
+
+    <form method="get" class="filters">
+        <label>
+            Mês
+            <select name="mes">
+                {% for numero, nome in meses.items() %}
+                    <option
+                        value="{{ numero }}"
+                        {% if numero == mes %}selected{% endif %}
+                    >
+                        {{ nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Ano
+            <select name="ano">
+                {% for item in anos %}
+                    <option
+                        value="{{ item }}"
+                        {% if item == ano %}selected{% endif %}
+                    >
+                        {{ item }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Ordenar
+            <select name="ordem">
+                <option value="desc" {% if ordem == "desc" %}selected{% endif %}>
+                    Mais recentes primeiro
+                </option>
+                <option value="asc" {% if ordem == "asc" %}selected{% endif %}>
+                    Mais antigas primeiro
+                </option>
+            </select>
+        </label>
+
+        <button type="submit">Aplicar</button>
+    </form>
+</header>
+
+<section class="income-summary">
+    <div>
+        <span>Total de receitas em {{ meses[mes] }} / {{ ano }}</span>
+        <strong>{{ total_receitas|moeda }}</strong>
+    </div>
+</section>
+
+<section class="panel form-panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">
+                {% if receita_edicao %}
+                    Alteração
+                {% else %}
+                    Nova entrada
+                {% endif %}
+            </p>
+
+            <h2>
+                {% if receita_edicao %}
+                    Alterar receita
+                {% else %}
+                    Adicionar receita
+                {% endif %}
+            </h2>
+        </div>
+
+        {% if receita_edicao %}
+            <a
+                class="button ghost"
+                href="{{ url_for('receitas', mes=mes, ano=ano) }}"
+            >
+                Cancelar alteração
+            </a>
+        {% endif %}
+    </div>
+
+    <form
+        method="post"
+        action="{{ url_for('salvar_receita') }}"
+        class="income-form"
+    >
+
+        {% if receita_edicao %}
+            <input
+                type="hidden"
+                name="id"
+                value="{{ receita_edicao['id'] }}"
+            >
+        {% endif %}
+
+        <input
+            type="hidden"
+            name="mes_retorno"
+            value="{{ mes }}"
+        >
+
+        <input
+            type="hidden"
+            name="ano_retorno"
+            value="{{ ano }}"
+        >
+
+        <label class="wide">
+            Descrição
+            <input
+                name="descricao"
+                required
+                value="{{ receita_edicao['descricao'] if receita_edicao else '' }}"
+                placeholder="Ex.: Salário"
+            >
+        </label>
+
+        <label>
+            Valor
+            <input
+                name="valor"
+                required
+                inputmode="decimal"
+                value="{{ ('%.2f'|format(receita_edicao['valor'])|replace('.', ',')) if receita_edicao else '' }}"
+                placeholder="0,00"
+            >
+        </label>
+
+        <label>
+            Categoria
+            <select name="categoria" required>
+                <option value="">Selecione</option>
+
+                {% for categoria in categorias %}
+                    <option
+                        value="{{ categoria }}"
+                        {% if receita_edicao and receita_edicao['categoria'] == categoria %}selected{% endif %}
+                    >
+                        {{ categoria }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Data
+            <input
+                type="date"
+                name="data"
+                required
+                value="{{ receita_edicao['data_html'] if receita_edicao else data_hoje }}"
+            >
+        </label>
+
+        <div class="form-actions">
+            <button type="submit">
+                {% if receita_edicao %}
+                    Salvar alteração
+                {% else %}
+                    Adicionar receita
+                {% endif %}
+            </button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">{{ meses[mes] }} / {{ ano }}</p>
+            <h2>Receitas do mês</h2>
+        </div>
+
+        <span class="count" data-filter-count="receitas-table" data-total="{{ receitas|length }}">
+            {{ receitas|length }} lançamento(s)
+        </span>
+    </div>
+
+    <div class="quick-filters quick-filters-receitas" data-filter-target="receitas-table">
+        <label class="quick-search">
+            <span>Pesquisar</span>
+            <input type="search" data-filter-search placeholder="Descrição, categoria, valor..." autocomplete="off">
+        </label>
+
+        <label>
+            <span>Categoria</span>
+            <select data-filter-column="Categoria">
+                <option value="">Todas</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria }}">{{ categoria }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button type="button" class="button ghost quick-filter-clear" data-filter-clear>Limpar</button>
+    </div>
+
+    <p class="quick-filter-note">
+        Os filtros alteram somente a lista abaixo. O total de receitas continua representando o mês inteiro.
+    </p>
+
+    <div class="table-wrap">
+        <table class="actions-table" id="receitas-table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Data</th>
+                    <th class="money">Valor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in receitas %}
+                    <tr>
+                        <td>{{ item["descricao"] }}</td>
+                        <td>{{ item["categoria"] }}</td>
+                        <td>{{ item["data"] }}</td>
+                        <td class="money">
+                            {{ item["valor"]|moeda }}
+                        </td>
+
+                        <td>
+                            <div class="row-actions">
+                                <a
+                                    class="mini-button"
+                                    href="{{ url_for('receitas', mes=mes, ano=ano, editar=item['id']) }}"
+                                >
+                                    Editar
+                                </a>
+
+                                <form
+                                    method="post"
+                                    action="{{ url_for('excluir_receita', id_receita=item['id']) }}"
+                                    onsubmit="return confirm('Deseja realmente excluir esta receita?');"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="mes"
+                                        value="{{ mes }}"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="ano"
+                                        value="{{ ano }}"
+                                    >
+
+                                    <button
+                                        class="mini-button danger"
+                                        type="submit"
+                                    >
+                                        Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+
+                {% else %}
+                    <tr>
+                        <td
+                            colspan="5"
+                            class="empty"
+                        >
+                            Nenhuma receita neste período.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

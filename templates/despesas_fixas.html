@@ -1,0 +1,480 @@
+{% extends "base.html" %}
+{% block title %}Despesas Fixas — Controle Financeiro{% endblock %}
+
+{% block content %}
+<header class="topbar">
+    <div>
+        <p class="eyebrow">Recorrências e cobranças mensais</p>
+        <h1>Despesas Fixas</h1>
+    </div>
+
+    <form method="get" class="filters">
+        <label>
+            Mês
+            <select name="mes">
+                {% for numero, nome in meses.items() %}
+                    <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>
+                        {{ nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Ano
+            <select name="ano">
+                {% for item in anos %}
+                    <option value="{{ item }}" {% if item == ano %}selected{% endif %}>
+                        {{ item }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Ordenar
+            <select name="ordem">
+                <option value="asc" {% if ordem == "asc" %}selected{% endif %}>
+                    Mais antigas primeiro
+                </option>
+                <option value="desc" {% if ordem == "desc" %}selected{% endif %}>
+                    Mais recentes primeiro
+                </option>
+            </select>
+        </label>
+
+        <button type="submit">Aplicar</button>
+    </form>
+</header>
+
+<section class="fixed-summary-grid">
+    <article class="mini-summary-card">
+        <span>Total fixas no mês</span>
+        <strong>{{ total_fixas|moeda }}</strong>
+    </article>
+
+    <article class="mini-summary-card">
+        <span>Pagas</span>
+        <strong>{{ total_fixas_pagas|moeda }}</strong>
+    </article>
+
+    <article class="mini-summary-card">
+        <span>Pendentes / atrasadas</span>
+        <strong>{{ total_fixas_pendentes|moeda }}</strong>
+    </article>
+</section>
+
+{% if despesa_edicao %}
+<section class="panel form-panel monthly-edit-panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Somente {{ meses[mes] }} / {{ ano }}</p>
+            <h2>Editar cobrança deste mês</h2>
+        </div>
+
+        <a class="button ghost" href="{{ url_for('despesas_fixas', mes=mes, ano=ano, ordem=ordem) }}">
+            Cancelar alteração
+        </a>
+    </div>
+
+    <p class="help-text">
+        Esta edição afeta somente esta cobrança mensal. O cadastro recorrente acima não é alterado.
+    </p>
+
+    <form method="post" action="{{ url_for('salvar_despesa') }}" class="expense-form">
+        <input type="hidden" name="id" value="{{ despesa_edicao['id'] }}">
+        <input type="hidden" name="pagina_retorno" value="fixas">
+        <input type="hidden" name="mes_retorno" value="{{ mes }}">
+        <input type="hidden" name="ano_retorno" value="{{ ano }}">
+
+        <label class="wide">
+            Descrição
+            <input name="descricao" required value="{{ despesa_edicao['descricao'] }}">
+        </label>
+
+        <label>
+            Valor
+            <input
+                name="valor"
+                required
+                inputmode="decimal"
+                value="{{ '%.2f'|format(despesa_edicao['valor'])|replace('.', ',') }}"
+            >
+        </label>
+
+        <label>
+            Categoria
+            <select name="categoria" required>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria }}" {% if despesa_edicao['categoria'] == categoria %}selected{% endif %}>
+                        {{ categoria }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Vencimento
+            <input type="date" name="data" required value="{{ despesa_edicao['data_html'] }}">
+        </label>
+
+        <label>
+            Status
+            <select name="status">
+                <option value="pago" {% if despesa_edicao['pago'] == 1 %}selected{% endif %}>Pago</option>
+                <option value="pendente" {% if despesa_edicao['pago'] == 0 %}selected{% endif %}>Pendente</option>
+            </select>
+        </label>
+
+        <div class="form-actions">
+            <button type="submit">Salvar somente este mês</button>
+        </div>
+    </form>
+</section>
+{% endif %}
+
+<section class="panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">{{ meses[mes] }} / {{ ano }}</p>
+            <h2>Cobranças fixas do mês</h2>
+        </div>
+        <span class="count" data-filter-count="cobrancas-fixas-table" data-total="{{ despesas|length }}">
+            {{ despesas|length }} cobrança(s)
+        </span>
+    </div>
+
+    <div class="quick-filters" data-filter-target="cobrancas-fixas-table">
+        <label class="quick-search">
+            <span>Pesquisar</span>
+            <input type="search" data-filter-search placeholder="Descrição, categoria, valor..." autocomplete="off">
+        </label>
+
+        <label>
+            <span>Categoria</span>
+            <select data-filter-column="Categoria">
+                <option value="">Todas</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria }}">{{ categoria }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            <span>Status</span>
+            <select data-filter-column="Status">
+                <option value="">Todos</option>
+                <option value="Pago">Pago</option>
+                <option value="Pendente">Pendente</option>
+                <option value="Atrasada">Atrasada</option>
+            </select>
+        </label>
+
+        <button type="button" class="button ghost quick-filter-clear" data-filter-clear>Limpar</button>
+    </div>
+
+    <p class="quick-filter-note">
+        Os filtros alteram somente as cobranças exibidas. Os resumos do mês permanecem completos.
+    </p>
+
+    <div class="table-wrap">
+        <table class="actions-table" id="cobrancas-fixas-table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Vencimento</th>
+                    <th>Status</th>
+                    <th class="money">Valor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in despesas %}
+                    <tr>
+                        <td>{{ item['descricao'] }}</td>
+                        <td>{{ item['categoria'] }}</td>
+                        <td>{{ item['data'] }}</td>
+                        <td>
+                            <span class="badge {{ item['status']|lower }}">{{ item['status'] }}</span>
+                        </td>
+                        <td class="money">{{ item['valor']|moeda }}</td>
+                        <td>
+                            <div class="row-actions">
+                                <a
+                                    class="mini-button"
+                                    href="{{ url_for('despesas_fixas', mes=mes, ano=ano, editar=item['id']) }}"
+                                >
+                                    Editar mês
+                                </a>
+
+                                {% if item['pago'] == 1 %}
+                                    <form method="post" action="{{ url_for('alterar_status_despesa', id_despesa=item['id']) }}">
+                                        <input type="hidden" name="mes" value="{{ mes }}">
+                                        <input type="hidden" name="ano" value="{{ ano }}">
+                                        <input type="hidden" name="pagina" value="fixas">
+                                        <input type="hidden" name="status" value="pendente">
+                                        <button class="mini-button warning" type="submit">Pendente</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ url_for('alterar_status_despesa', id_despesa=item['id']) }}">
+                                        <input type="hidden" name="mes" value="{{ mes }}">
+                                        <input type="hidden" name="ano" value="{{ ano }}">
+                                        <input type="hidden" name="pagina" value="fixas">
+                                        <input type="hidden" name="status" value="pago">
+                                        <button class="mini-button success" type="submit">Pago</button>
+                                    </form>
+                                {% endif %}
+
+                                <form
+                                    method="post"
+                                    action="{{ url_for('excluir_despesa', id_despesa=item['id']) }}"
+                                    onsubmit="return confirm('Excluir somente esta cobrança fixa de {{ meses[mes] }} / {{ ano }}? Ela não será recriada neste mesmo mês.');"
+                                >
+                                    <input type="hidden" name="mes" value="{{ mes }}">
+                                    <input type="hidden" name="ano" value="{{ ano }}">
+                                    <input type="hidden" name="pagina" value="fixas">
+                                    <button class="mini-button danger" type="submit">Excluir mês</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="empty">Nenhuma cobrança fixa neste período.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel recurrence-panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Configuração permanente</p>
+            <h2>
+                {% if cadastro_edicao %}
+                    Alterar recorrência
+                {% else %}
+                    Cadastrar despesa fixa
+                {% endif %}
+            </h2>
+        </div>
+
+        {% if cadastro_edicao %}
+            <a class="button ghost" href="{{ url_for('despesas_fixas', mes=mes, ano=ano, ordem=ordem) }}">
+                Cancelar alteração
+            </a>
+        {% endif %}
+    </div>
+
+    <p class="help-text">
+        Este cadastro define os próximos meses. Alterações aqui não modificam cobranças mensais que já foram geradas.
+    </p>
+
+    <form method="post" action="{{ url_for('salvar_cadastro_despesa_fixa') }}" class="recurrence-form">
+        {% if cadastro_edicao %}
+            <input type="hidden" name="id" value="{{ cadastro_edicao['id'] }}">
+        {% endif %}
+
+        <input type="hidden" name="mes" value="{{ mes }}">
+        <input type="hidden" name="ano" value="{{ ano }}">
+
+        <label class="wide">
+            Descrição
+            <input
+                name="descricao"
+                required
+                value="{{ cadastro_edicao['descricao'] if cadastro_edicao else '' }}"
+                placeholder="Ex.: Internet"
+            >
+        </label>
+
+        <label>
+            Valor padrão
+            <input
+                name="valor"
+                required
+                inputmode="decimal"
+                value="{{ ('%.2f'|format(cadastro_edicao['valor'])|replace('.', ',')) if cadastro_edicao else '' }}"
+                placeholder="0,00"
+            >
+        </label>
+
+        <label>
+            Categoria
+            <select name="categoria" required>
+                <option value="">Selecione</option>
+                {% for categoria in categorias %}
+                    <option
+                        value="{{ categoria }}"
+                        {% if cadastro_edicao and cadastro_edicao['categoria'] == categoria %}selected{% endif %}
+                    >
+                        {{ categoria }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Vence todo dia
+            <input
+                type="number"
+                name="dia_vencimento"
+                min="1"
+                max="31"
+                required
+                value="{{ cadastro_edicao['dia_vencimento'] if cadastro_edicao else '1' }}"
+            >
+        </label>
+
+        <label>
+            Início em
+            <input
+                type="date"
+                name="data_inicio"
+                required
+                value="{{ cadastro_edicao['data_inicio_html'] if cadastro_edicao else data_hoje }}"
+            >
+        </label>
+
+        <label>
+            Recorrência
+            <select name="ativa">
+                <option value="1" {% if not cadastro_edicao or cadastro_edicao['ativa'] == 1 %}selected{% endif %}>
+                    Ativa
+                </option>
+                <option value="0" {% if cadastro_edicao and cadastro_edicao['ativa'] == 0 %}selected{% endif %}>
+                    Inativa
+                </option>
+            </select>
+        </label>
+
+        <div class="form-actions">
+            <button type="submit">
+                {% if cadastro_edicao %}
+                    Salvar recorrência
+                {% else %}
+                    Cadastrar fixa
+                {% endif %}
+            </button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Modelos cadastrados</p>
+            <h2>Recorrências</h2>
+        </div>
+        <span class="count" data-filter-count="recorrencias-table" data-total="{{ cadastros|length }}">
+            {{ cadastros|length }} cadastro(s)
+        </span>
+    </div>
+
+    <div class="quick-filters" data-filter-target="recorrencias-table">
+        <label class="quick-search">
+            <span>Pesquisar</span>
+            <input type="search" data-filter-search placeholder="Descrição, categoria, valor..." autocomplete="off">
+        </label>
+
+        <label>
+            <span>Categoria</span>
+            <select data-filter-column="Categoria">
+                <option value="">Todas</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria }}">{{ categoria }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            <span>Situação</span>
+            <select data-filter-column="Situação">
+                <option value="">Todas</option>
+                <option value="Ativa">Ativa</option>
+                <option value="Inativa">Inativa</option>
+            </select>
+        </label>
+
+        <button type="button" class="button ghost quick-filter-clear" data-filter-clear>Limpar</button>
+    </div>
+
+    <div class="table-wrap">
+        <table class="actions-table" id="recorrencias-table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Vencimento</th>
+                    <th>Início</th>
+                    <th>Situação</th>
+                    <th class="money">Valor padrão</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cadastros %}
+                    <tr>
+                        <td>{{ item['descricao'] }}</td>
+                        <td>{{ item['categoria'] }}</td>
+                        <td>Dia {{ item['dia_vencimento'] }}</td>
+                        <td>{{ item['data_inicio'] or '-' }}</td>
+                        <td>
+                            {% if item['ativa'] == 1 %}
+                                <span class="badge ativo">Ativa</span>
+                            {% else %}
+                                <span class="badge inativo">Inativa</span>
+                            {% endif %}
+                        </td>
+                        <td class="money">{{ item['valor']|moeda }}</td>
+                        <td>
+                            <div class="row-actions">
+                                <a
+                                    class="mini-button"
+                                    href="{{ url_for('despesas_fixas', mes=mes, ano=ano, cadastro=item['id']) }}"
+                                >
+                                    Editar cadastro
+                                </a>
+
+                                {% if item['ativa'] == 1 %}
+                                    <form method="post" action="{{ url_for('alterar_situacao_despesa_fixa', id_fixa=item['id']) }}">
+                                        <input type="hidden" name="mes" value="{{ mes }}">
+                                        <input type="hidden" name="ano" value="{{ ano }}">
+                                        <input type="hidden" name="acao" value="inativar">
+                                        <button class="mini-button warning" type="submit">Inativar</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ url_for('alterar_situacao_despesa_fixa', id_fixa=item['id']) }}">
+                                        <input type="hidden" name="mes" value="{{ mes }}">
+                                        <input type="hidden" name="ano" value="{{ ano }}">
+                                        <input type="hidden" name="acao" value="ativar">
+                                        <button class="mini-button success" type="submit">Ativar</button>
+                                    </form>
+                                {% endif %}
+
+                                <form
+                                    method="post"
+                                    action="{{ url_for('excluir_cadastro_despesa_fixa', id_fixa=item['id']) }}"
+                                    onsubmit="return confirm('Excluir definitivamente este cadastro recorrente? As cobranças já geradas serão preservadas, mas novos meses não serão criados.');"
+                                >
+                                    <input type="hidden" name="mes" value="{{ mes }}">
+                                    <input type="hidden" name="ano" value="{{ ano }}">
+                                    <button class="mini-button danger" type="submit">Excluir cadastro</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="empty">Nenhuma recorrência cadastrada.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

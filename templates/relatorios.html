@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}Relatórios — Controle Financeiro{% endblock %}
+
+{% block content %}
+<header class="topbar">
+    <div>
+        <p class="eyebrow">Análise do período</p>
+        <h1>Relatórios</h1>
+    </div>
+
+    <form method="get" class="filters">
+        <label>
+            Mês
+            <select name="mes">
+                {% for numero, nome in meses.items() %}
+                    <option
+                        value="{{ numero }}"
+                        {% if numero == mes %}selected{% endif %}
+                    >
+                        {{ nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Ano
+            <select name="ano">
+                {% for item in anos %}
+                    <option
+                        value="{{ item }}"
+                        {% if item == ano %}selected{% endif %}
+                    >
+                        {{ item }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button type="submit">Aplicar</button>
+    </form>
+</header>
+
+<section class="report-cards">
+    <article class="report-card">
+        <span>Receitas</span>
+        <strong>{{ total_receitas|moeda }}</strong>
+    </article>
+
+    <article class="report-card">
+        <span>Despesas Gerais</span>
+        <strong>{{ total_gerais|moeda }}</strong>
+    </article>
+
+    <article class="report-card">
+        <span>Despesas Fixas</span>
+        <strong>{{ total_fixas|moeda }}</strong>
+    </article>
+
+    <article class="report-card">
+        <span>Total de Despesas</span>
+        <strong>{{ total_despesas|moeda }}</strong>
+    </article>
+
+    <article class="report-card">
+        <span>Resultado do mês</span>
+        <strong class="{% if resultado_periodo < 0 %}negative{% else %}positive{% endif %}">
+            {{ resultado_periodo|moeda }}
+        </strong>
+    </article>
+</section>
+
+<div class="report-two-columns">
+    <section class="panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Composição das saídas</p>
+                <h2>Gerais x Fixas</h2>
+            </div>
+        </div>
+
+        {% if total_despesas > 0 %}
+            <div class="composition-row">
+                <div class="composition-label">
+                    <span>Despesas Gerais</span>
+                    <strong>{{ total_gerais|moeda }}</strong>
+                </div>
+
+                <div class="report-track">
+                    <div
+                        class="report-fill"
+                        style="width: {{ '%.2f'|format(percentual_gerais) }}%"
+                    ></div>
+                </div>
+
+                <small>{{ "%.1f"|format(percentual_gerais) }}%</small>
+            </div>
+
+            <div class="composition-row">
+                <div class="composition-label">
+                    <span>Despesas Fixas</span>
+                    <strong>{{ total_fixas|moeda }}</strong>
+                </div>
+
+                <div class="report-track">
+                    <div
+                        class="report-fill"
+                        style="width: {{ '%.2f'|format(percentual_fixas) }}%"
+                    ></div>
+                </div>
+
+                <small>{{ "%.1f"|format(percentual_fixas) }}%</small>
+            </div>
+        {% else %}
+            <p class="report-empty">
+                Nenhuma despesa neste período.
+            </p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Situação dos pagamentos</p>
+                <h2>Pagas x Pendentes</h2>
+            </div>
+        </div>
+
+        {% if total_despesas > 0 %}
+            <div class="composition-row">
+                <div class="composition-label">
+                    <span>Pagas</span>
+                    <strong>{{ total_pagas|moeda }}</strong>
+                </div>
+
+                <div class="report-track">
+                    <div
+                        class="report-fill paid-fill"
+                        style="width: {{ '%.2f'|format(percentual_pagas) }}%"
+                    ></div>
+                </div>
+
+                <small>{{ "%.1f"|format(percentual_pagas) }}%</small>
+            </div>
+
+            <div class="composition-row">
+                <div class="composition-label">
+                    <span>Pendentes / Atrasadas</span>
+                    <strong>{{ total_pendentes|moeda }}</strong>
+                </div>
+
+                <div class="report-track">
+                    <div
+                        class="report-fill pending-fill"
+                        style="width: {{ '%.2f'|format(percentual_pendentes) }}%"
+                    ></div>
+                </div>
+
+                <small>{{ "%.1f"|format(percentual_pendentes) }}%</small>
+            </div>
+        {% else %}
+            <p class="report-empty">
+                Nenhuma despesa neste período.
+            </p>
+        {% endif %}
+    </section>
+</div>
+
+<section class="panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Todas as saídas</p>
+            <h2>Despesas por categoria</h2>
+        </div>
+
+        <span class="count">
+            {{ meses[mes] }} / {{ ano }}
+        </span>
+    </div>
+
+    <div class="category-report">
+        {% for item in despesas_total_categoria %}
+            <div class="category-row">
+                <div class="category-head">
+                    <span>{{ item["categoria"] }}</span>
+                    <strong>{{ item["total"]|moeda }}</strong>
+                </div>
+
+                <div class="report-track">
+                    <div
+                        class="report-fill"
+                        style="width: {{ '%.2f'|format(item['percentual_barra']) }}%"
+                    ></div>
+                </div>
+            </div>
+        {% else %}
+            <p class="report-empty">
+                Nenhuma despesa para exibir.
+            </p>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="report-two-columns">
+    <section class="panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Dia a dia</p>
+                <h2>Despesas Gerais por categoria</h2>
+            </div>
+        </div>
+
+        <div class="category-report">
+            {% for item in despesas_gerais_categoria %}
+                <div class="category-row">
+                    <div class="category-head">
+                        <span>{{ item["categoria"] }}</span>
+                        <strong>{{ item["total"]|moeda }}</strong>
+                    </div>
+
+                    <div class="report-track">
+                        <div
+                            class="report-fill"
+                            style="width: {{ '%.2f'|format(item['percentual_barra']) }}%"
+                        ></div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="report-empty">
+                    Nenhuma despesa geral.
+                </p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Recorrentes</p>
+                <h2>Despesas Fixas por categoria</h2>
+            </div>
+        </div>
+
+        <div class="category-report">
+            {% for item in despesas_fixas_categoria %}
+                <div class="category-row">
+                    <div class="category-head">
+                        <span>{{ item["categoria"] }}</span>
+                        <strong>{{ item["total"]|moeda }}</strong>
+                    </div>
+
+                    <div class="report-track">
+                        <div
+                            class="report-fill"
+                            style="width: {{ '%.2f'|format(item['percentual_barra']) }}%"
+                        ></div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="report-empty">
+                    Nenhuma despesa fixa.
+                </p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<section class="panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Entradas</p>
+            <h2>Receitas por categoria</h2>
+        </div>
+    </div>
+
+    <div class="category-report">
+        {% for item in receitas_categoria %}
+            <div class="category-row">
+                <div class="category-head">
+                    <span>{{ item["categoria"] }}</span>
+                    <strong>{{ item["total"]|moeda }}</strong>
+                </div>
+
+                <div class="report-track">
+                    <div
+                        class="report-fill income-fill"
+                        style="width: {{ '%.2f'|format(item['percentual_barra']) }}%"
+                    ></div>
+                </div>
+            </div>
+        {% else %}
+            <p class="report-empty">
+                Nenhuma receita para exibir.
+            </p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

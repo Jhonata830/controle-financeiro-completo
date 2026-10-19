@@ -1,0 +1,25 @@
+# Segredos e configurações locais
+.env
+.env.*
+!.env.example
+
+# Banco de dados e cópias de segurança
+dados/*
+!dados/.gitkeep
+backups/*
+!backups/.gitkeep
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

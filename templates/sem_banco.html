@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+    <p class="eyebrow">Configuração necessária</p>
+    <h1>Banco de dados não encontrado</h1>
+    <p>
+        Copie seu arquivo <strong>despesas.db</strong> para a mesma pasta
+        do arquivo <strong>app.py</strong>.
+    </p>
+    <p class="path">{{ caminho }}</p>
+</section>
+{% endblock %}

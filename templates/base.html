@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f172a">
+    <title>{% block title %}Controle Financeiro 2{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="mobile-topbar">
+    <button
+        type="button"
+        class="mobile-menu-button"
+        id="mobile-menu-button"
+        aria-label="Abrir menu"
+        aria-controls="sidebar"
+        aria-expanded="false"
+    >
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <div class="mobile-brand">
+        <div class="mobile-brand-mark">CF</div>
+        <div>
+            <strong>Controle Financeiro 2</strong>
+            <small>{{ periodo_nome }} / {{ periodo_ano }}</small>
+        </div>
+    </div>
+</div>
+
+<div
+    class="mobile-overlay"
+    id="mobile-overlay"
+    aria-hidden="true"
+></div>
+
+<div class="layout">
+    <aside
+        class="sidebar"
+        id="sidebar"
+        aria-label="Menu principal"
+    >
+        <div class="brand-area">
+            <div class="brand-mark">CF</div>
+            <div>
+                <div class="brand">Controle Financeiro 2</div>
+                <div class="brand-subtitle">Seu painel financeiro</div>
+            </div>
+
+            <button
+                type="button"
+                class="mobile-menu-close"
+                id="mobile-menu-close"
+                aria-label="Fechar menu"
+            >
+                ×
+            </button>
+        </div>
+
+        <div class="sidebar-period">
+            <span class="sidebar-period-label">Período atual</span>
+            <strong>{{ periodo_nome }} / {{ periodo_ano }}</strong>
+        </div>
+
+        <nav>
+            <a class="{% if request.endpoint == 'dashboard' %}active{% endif %}"
+               href="{{ url_for('dashboard') }}">
+                <span class="nav-icon">⌂</span><span>Dashboard</span>
+            </a>
+
+            <a class="{% if request.endpoint == 'despesas' %}active{% endif %}"
+               href="{{ url_for('despesas', mes=periodo_mes, ano=periodo_ano) }}">
+                <span class="nav-icon">↓</span><span>Despesas Gerais</span>
+            </a>
+
+            <a class="{% if request.endpoint in ['despesas_fixas', 'salvar_cadastro_despesa_fixa', 'alterar_situacao_despesa_fixa', 'excluir_cadastro_despesa_fixa'] %}active{% endif %}"
+               href="{{ url_for('despesas_fixas', mes=periodo_mes, ano=periodo_ano) }}">
+                <span class="nav-icon">↻</span><span>Despesas Fixas</span>
+            </a>
+
+            <a class="{% if request.endpoint in ['receitas', 'salvar_receita', 'excluir_receita'] %}active{% endif %}"
+               href="{{ url_for('receitas', mes=periodo_mes, ano=periodo_ano) }}">
+                <span class="nav-icon">↑</span><span>Receitas</span>
+            </a>
+
+            <a class="{% if request.endpoint in ['cartao', 'salvar_config_cartao', 'salvar_compra_cartao', 'excluir_compra_cartao', 'alterar_status_fatura_cartao'] %}active{% endif %}"
+               href="{{ url_for('cartao') }}">
+                <span class="nav-icon">▣</span><span>Cartão de Crédito</span>
+            </a>
+
+            <a class="{% if request.endpoint == 'relatorios' %}active{% endif %}"
+               href="{{ url_for('relatorios', mes=periodo_mes, ano=periodo_ano) }}">
+                <span class="nav-icon">▥</span><span>Relatórios</span>
+            </a>
+
+            <a class="{% if request.endpoint in ['exportar', 'exportar_mes_consolidado', 'exportar_mes_arquivos', 'exportar_historico'] %}active{% endif %}"
+               href="{{ url_for('exportar', mes=periodo_mes, ano=periodo_ano) }}">
+                <span class="nav-icon">⇩</span><span>Exportar</span>
+            </a>
+
+            <a class="{% if request.endpoint in ['rendimento', 'salvar_rendimento'] %}active{% endif %}"
+               href="{{ url_for('rendimento') }}">
+                <span class="nav-icon">%</span><span>Rendimento CDI</span>
+            </a>
+
+            <a class="{% if request.endpoint in ['categorias', 'adicionar_categoria', 'renomear_categoria', 'excluir_categoria'] %}active{% endif %}"
+               href="{{ url_for('categorias', mes=periodo_mes, ano=periodo_ano) }}">
+                <span class="nav-icon">◇</span><span>Categorias</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="backup-status">
+                <span class="backup-dot"></span>
+                <div>
+                    <span>Backup automático</span>
+                    <small>{{ ultimo_backup }}</small>
+                </div>
+            </div>
+            <div class="sidebar-note">Controle Financeiro 2 Web · Visual 2.0</div>
+        </div>
+    </aside>
+
+    <main class="content">
+        <div class="content-inner">
+            {% with mensagens = get_flashed_messages(with_categories=true) %}
+                {% if mensagens %}
+                    <div class="messages">
+                        {% for categoria, mensagem in mensagens %}
+                            <div class="message {{ categoria }}">
+                                <span class="message-icon">{% if categoria == 'sucesso' %}✓{% else %}!{% endif %}</span>
+                                <span>{{ mensagem }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='mobile.js') }}"></script>
+<script src="{{ url_for('static', filename='quick_filters.js') }}"></script>
+</body>
+</html>

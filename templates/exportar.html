@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Exportar — Controle Financeiro{% endblock %}
+
+{% block content %}
+<header class="topbar">
+    <div>
+        <p class="eyebrow">Dados</p>
+        <h1>Exportar dados</h1>
+    </div>
+
+    <form method="get" class="filters">
+        <label>
+            Mês
+            <select name="mes">
+                {% for numero, nome in meses.items() %}
+                    <option
+                        value="{{ numero }}"
+                        {% if numero == mes %}selected{% endif %}
+                    >
+                        {{ nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Ano
+            <select name="ano">
+                {% for item in anos %}
+                    <option
+                        value="{{ item }}"
+                        {% if item == ano %}selected{% endif %}
+                    >
+                        {{ item }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button type="submit">
+            Aplicar
+        </button>
+    </form>
+</header>
+
+<section class="export-intro">
+    <div class="export-intro-icon">⇩</div>
+    <div>
+        <strong>Leve seus dados com você</strong>
+        <p>
+            Os arquivos CSV usam acentuação UTF-8, ponto e vírgula como separador
+            e valores no formato brasileiro. Eles podem ser abertos normalmente
+            no Excel e em outros programas de planilha.
+        </p>
+    </div>
+</section>
+
+<div class="export-grid">
+    <section class="panel export-card export-card-primary">
+        <div class="export-card-icon">▤</div>
+        <div class="export-card-content">
+            <p class="eyebrow">Período selecionado</p>
+            <h2>{{ meses[mes] }} / {{ ano }}</h2>
+
+            <div class="export-stats">
+                <span>
+                    <strong>{{ qtd_despesas }}</strong>
+                    despesa(s)
+                </span>
+                <span>
+                    <strong>{{ qtd_receitas }}</strong>
+                    receita(s)
+                </span>
+            </div>
+
+            <p>
+                Gera um único CSV com entradas e saídas do mês em ordem de data.
+                É a opção mais prática para abrir no Excel e analisar o período.
+            </p>
+
+            <a
+                class="button export-button"
+                href="{{ url_for('exportar_mes_consolidado', mes=mes, ano=ano) }}"
+            >
+                Baixar mês em CSV
+            </a>
+        </div>
+    </section>
+
+    <section class="panel export-card">
+        <div class="export-card-icon">▦</div>
+        <div class="export-card-content">
+            <p class="eyebrow">Período selecionado</p>
+            <h2>Arquivos separados</h2>
+
+            <p>
+                Baixa um ZIP contendo três planilhas CSV separadas:
+                Despesas Gerais, Despesas Fixas e Receitas.
+            </p>
+
+            <div class="export-file-list">
+                <span>despesas_gerais.csv</span>
+                <span>despesas_fixas.csv</span>
+                <span>receitas.csv</span>
+            </div>
+
+            <a
+                class="button ghost export-button"
+                href="{{ url_for('exportar_mes_arquivos', mes=mes, ano=ano) }}"
+            >
+                Baixar arquivos do mês
+            </a>
+        </div>
+    </section>
+
+    <section class="panel export-card export-card-wide">
+        <div class="export-card-icon">◫</div>
+        <div class="export-card-content">
+            <p class="eyebrow">Todos os dados</p>
+            <h2>Histórico completo</h2>
+
+            <div class="export-stats export-stats-history">
+                <span>
+                    <strong>{{ total_historico_despesas }}</strong>
+                    despesas
+                </span>
+                <span>
+                    <strong>{{ total_historico_receitas }}</strong>
+                    receitas
+                </span>
+                <span>
+                    <strong>{{ total_recorrencias }}</strong>
+                    recorrências
+                </span>
+            </div>
+
+            <p>
+                Gera um pacote completo com todos os lançamentos existentes no banco,
+                além das recorrências e categorias cadastradas.
+            </p>
+
+            <div class="export-file-list export-file-list-inline">
+                <span>despesas.csv</span>
+                <span>receitas.csv</span>
+                <span>recorrencias.csv</span>
+                <span>categorias.csv</span>
+                <span>rendimentos_cdi.csv</span>
+            </div>
+
+            <a
+                class="button export-button"
+                href="{{ url_for('exportar_historico') }}"
+            >
+                Baixar histórico completo
+            </a>
+        </div>
+    </section>
+</div>
+
+<section class="export-warning">
+    <strong>Exportação não altera seus dados.</strong>
+    <p>
+        Os arquivos são apenas cópias para consulta ou planilha.
+        O seu <code>despesas.db</code> e os backups automáticos continuam intactos.
+    </p>
+</section>
+{% endblock %}

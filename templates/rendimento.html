@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}Rendimento Mercado Pago — Controle Financeiro 2{% endblock %}
+
+{% block content %}
+<header class="topbar">
+    <div>
+        <p class="eyebrow">Saldo remunerado</p>
+        <h1>Rendimento Mercado Pago</h1>
+    </div>
+</header>
+
+<section class="yield-info-panel">
+    <div class="yield-info-icon">%</div>
+    <div>
+        <strong>Rendimento líquido por dia útil</strong>
+        <p>
+            O cálculo segue a lógica prática da conta remunerada do Mercado Pago:
+            percentual do CDI, 252 dias úteis, IR regressivo e novos depósitos
+            entrando na base somente no próximo dia útil. O rendimento mostrado
+            é líquido de IR e não aparece como uma Receita comum.
+        </p>
+    </div>
+</section>
+
+<div class="yield-settings-grid">
+    <section class="panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Configuração</p>
+                <h2>Taxa do rendimento</h2>
+            </div>
+
+            {% if config and config["ativo"] %}
+                <span class="yield-status active">Ativo</span>
+            {% else %}
+                <span class="yield-status">Desativado</span>
+            {% endif %}
+        </div>
+
+        <form method="post" action="{{ url_for('salvar_rendimento') }}" class="yield-form">
+            <label class="yield-toggle-row">
+                <span>
+                    <strong>Rendimento automático</strong>
+                    <small>Processar o saldo nos dias úteis.</small>
+                </span>
+
+                <input
+                    type="checkbox"
+                    name="ativo"
+                    value="1"
+                    {% if config and config["ativo"] %}checked{% endif %}
+                >
+            </label>
+
+            <div class="yield-form-grid">
+                <label>
+                    Percentual do CDI
+                    <div class="input-suffix">
+                        <input
+                            type="number"
+                            name="percentual_cdi"
+                            min="0"
+                            max="500"
+                            step="0.01"
+                            required
+                            value="{{ '%.2f'|format(config['percentual_cdi'] if config else 100) }}"
+                        >
+                        <span>%</span>
+                    </div>
+                </label>
+
+                <label>
+                    CDI anual de referência
+                    <div class="input-suffix">
+                        <input
+                            type="number"
+                            name="taxa_anual"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            required
+                            value="{{ '%.2f'|format(config['taxa_anual'] if config else 13.90) }}"
+                        >
+                        <span>% a.a.</span>
+                    </div>
+                </label>
+
+                <label>
+                    Data inicial
+                    <input
+                        type="date"
+                        name="data_inicio"
+                        required
+                        value="{{ data_inicio_html }}"
+                        {% if total_historico > 0 %}readonly{% endif %}
+                    >
+                    {% if total_historico > 0 %}
+                        <small>
+                            A data inicial fica bloqueada depois do primeiro rendimento para preservar o histórico.
+                        </small>
+                    {% endif %}
+                </label>
+
+                <div class="yield-rate-preview">
+                    <span>Taxa diária efetiva atual</span>
+                    <strong>{{ "%.6f"|format(taxa_diaria_percentual) }}%</strong>
+                    <small>
+                        Fórmula bruta: ((1 + CDI anual)^(1/252) − 1) × % do CDI. Depois é descontado o IR.
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit">
+                    Salvar configuração
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="panel yield-rules">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Como funciona</p>
+                <h2>Regras utilizadas</h2>
+            </div>
+        </div>
+
+        <div class="yield-rule-list">
+            <div>
+                <span>252</span>
+                <p><strong>Dias úteis/ano</strong><br>Base usada na conversão da taxa anual.</p>
+            </div>
+
+            <div>
+                <span>1×</span>
+                <p><strong>Uma vez por dia</strong><br>Atualizar a página não duplica rendimento.</p>
+            </div>
+
+            <div>
+                <span>↗</span>
+                <p><strong>Juros compostos</strong><br>O crédito anterior entra na base dos próximos dias.</p>
+            </div>
+
+            <div>
+                <span>BR</span>
+                <p><strong>Calendário bancário</strong><br>Finais de semana e principais feriados bancários brasileiros são ignorados.</p>
+            </div>
+        </div>
+
+        <div class="yield-tax-note yield-tax-note-ok">
+            <strong>Mercado Pago: IR automático e IOF zero.</strong>
+            <p>
+                O sistema aplica a tabela regressiva do IR (22,5% a 15%)
+                usando a data inicial configurada. Para a conta remunerada do
+                Mercado Pago, não aplicamos IOF.
+            </p>
+        </div>
+
+        <div class="yield-tax-note">
+            <strong>Entradas novas não rendem no mesmo dia.</strong>
+            <p>
+                Uma Receita/Pix lançado hoje entra na base elegível somente
+                no próximo dia útil.
+            </p>
+        </div>
+    </section>
+</div>
+
+<section class="yield-recalc-panel">
+    <div>
+        <strong>Corrigir rendimentos calculados pela versão anterior</strong>
+        <p>
+            Use este botão uma vez após a atualização para recalcular desde a
+            data inicial com IR e com a nova regra de saldo elegível.
+        </p>
+    </div>
+
+    <form
+        method="post"
+        action="{{ url_for('recalcular_rendimento') }}"
+        onsubmit="return confirm('Recalcular todo o histórico de rendimento desde a data inicial?');"
+    >
+        <button type="submit" class="button secondary">
+            Recalcular histórico
+        </button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Auditoria</p>
+            <h2>Últimos rendimentos</h2>
+        </div>
+
+        <span class="count">{{ total_historico }} registro(s)</span>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Referência</th>
+                    <th>Crédito</th>
+                    <th class="money">Saldo elegível</th>
+                    <th>CDI</th>
+                    <th>CDI anual</th>
+                    <th>Taxa diária</th>
+                    <th class="money">Bruto</th>
+                    <th>IR</th>
+                    <th class="money">Líquido</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in historico %}
+                    <tr>
+                        <td>{{ item["data_referencia"] }}</td>
+                        <td>{{ item["data_credito"] }}</td>
+                        <td class="money">{{ item["saldo_elegivel"]|moeda }}</td>
+                        <td>{{ "%.2f"|format(item["percentual_cdi"]) }}%</td>
+                        <td>{{ "%.2f"|format(item["taxa_anual"]) }}%</td>
+                        <td>{{ "%.6f"|format(item["taxa_diaria"] * 100) }}%</td>
+                        <td class="money">{{ item["rendimento_bruto"]|moeda }}</td>
+                        <td>
+                            {{ "%.2f"|format(item["aliquota_ir"]) }}%
+                            <small class="table-subtext">- {{ item["imposto_ir"]|moeda }}</small>
+                        </td>
+                        <td class="money positive">+ {{ item["rendimento"]|moeda }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="empty">
+                            Nenhum rendimento foi processado ainda.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
