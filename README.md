@@ -36,7 +36,7 @@ O projeto foi desenvolvido com foco em uso pessoal, persistência local dos dado
 
 ## Prévia visual
 
-> As imagens reais da aplicação serão adicionadas aqui após a captura das telas atuais, para que a documentação represente fielmente o sistema.
+> Em breve.
 
 ## Tecnologias
 
