@@ -39,37 +39,37 @@ O projeto foi desenvolvido com foco em uso pessoal, persistência local dos dado
 ### Dashboard
 
 <p align="center">
-  <img src="images/Dashboard.PNG" alt="Dashboard" width="320">
+  <img src="images/Dashboard.PNG" alt="Dashboard" width="500">
 </p>
 
 ### Despesas gerais
 
 <p align="center">
-  <img src="images/Despesas_gerais.PNG" alt="Despesas gerais" width="220">
+  <img src="images/Despesas_gerais.PNG" alt="Despesas gerais" width="500">
 </p>
 
 ### Despesas fixas
 
 <p align="center">
-  <img src="images/Despesas_fixas.PNG" alt="Despesas fixas" width="320">
+  <img src="images/Despesas_fixas.PNG" alt="Despesas fixas" width="500">
 </p>
 
 ### Receitas
 
 <p align="center">
-  <img src="images/Receitas.PNG" alt="Receitas" width="260">
+  <img src="images/Receitas.PNG" alt="Receitas" width="500">
 </p>
 
 ### Cartão de crédito
 
 <p align="center">
-  <img src="images/Cartao_de_credito.PNG" alt="Cartão de crédito" width="220">
+  <img src="images/Cartao_de_credito.PNG" alt="Cartão de crédito" width="500">
 </p>
 
 ### Relatórios
 
 <p align="center">
-  <img src="images/Relatorios.PNG" alt="Relatórios" width="320">
+  <img src="images/Relatorios.PNG" alt="Relatórios" width="500">
 </p>
 
 ### Exportar
@@ -81,13 +81,13 @@ O projeto foi desenvolvido com foco em uso pessoal, persistência local dos dado
 ### Rendimento CDI
 
 <p align="center">
-  <img src="images/Rendimento_CDI.PNG" alt="Rendimento CDI" width="320">
+  <img src="images/Rendimento_CDI.PNG" alt="Rendimento CDI" width="500">
 </p>
 
 ### Categorias
 
 <p align="center">
-  <img src="images/Categorias.PNG" alt="Categorias" width="320">
+  <img src="images/Categorias.PNG" alt="Categorias" width="500">
 </p>
 
 ## Tecnologias
