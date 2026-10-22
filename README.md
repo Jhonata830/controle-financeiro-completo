@@ -39,7 +39,7 @@ O projeto foi desenvolvido com foco em uso pessoal, persistência local dos dado
 ### Dashboard
 
 <p align="center">
-  <img src="images/Dashboard.png" alt="Dashboard" width="320">
+  <img src="images/Dashboard.PNG" alt="Dashboard" width="320">
 </p>
 
 ### Despesas gerais
@@ -51,43 +51,43 @@ O projeto foi desenvolvido com foco em uso pessoal, persistência local dos dado
 ### Despesas fixas
 
 <p align="center">
-  <img src="images/Despesas_fixas.png" alt="Despesas fixas" width="320">
+  <img src="images/Despesas_fixas.PNG" alt="Despesas fixas" width="320">
 </p>
 
 ### Receitas
 
 <p align="center">
-  <img src="images/Receitas.png" alt="Receitas" width="260">
+  <img src="images/Receitas.PNG" alt="Receitas" width="260">
 </p>
 
 ### Cartão de crédito
 
 <p align="center">
-  <img src="images/Cartao_de_credito.png" alt="Cartão de crédito" width="220">
+  <img src="images/Cartao_de_credito.PNG" alt="Cartão de crédito" width="220">
 </p>
 
 ### Relatórios
 
 <p align="center">
-  <img src="images/Relatorios.png" alt="Relatórios" width="320">
+  <img src="images/Relatorios.PNG" alt="Relatórios" width="320">
 </p>
 
 ### Exportar
 
 <p align="center">
-  <img src="images/Exportar.png" alt="Exportar" width="320">
+  <img src="images/Exportar.PNG" alt="Exportar" width="320">
 </p>
 
 ### Rendimento CDI
 
 <p align="center">
-  <img src="images/Rendimento_CDI.png" alt="Rendimento CDI" width="320">
+  <img src="images/Rendimento_CDI.PNG" alt="Rendimento CDI" width="320">
 </p>
 
 ### Categorias
 
 <p align="center">
-  <img src="images/Categorias.png" alt="Categorias" width="320">
+  <img src="images/Categorias.PNG" alt="Categorias" width="320">
 </p>
 
 ## Tecnologias
