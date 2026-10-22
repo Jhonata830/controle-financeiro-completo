@@ -75,7 +75,7 @@ O projeto foi desenvolvido com foco em uso pessoal, persistência local dos dado
 ### Exportar
 
 <p align="center">
-  <img src="images/Exportar.PNG" alt="Exportar" width="320">
+  <img src="images/Exportar.PNG" alt="Exportar" width="500">
 </p>
 
 ### Rendimento CDI
