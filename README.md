@@ -45,7 +45,7 @@ O projeto foi desenvolvido com foco em uso pessoal, persistência local dos dado
 ### Despesas gerais
 
 <p align="center">
-  <img src="images/Despesas_gerais.png" alt="Despesas gerais" width="220">
+  <img src="images/Despesas_gerais.PNG" alt="Despesas gerais" width="220">
 </p>
 
 ### Despesas fixas
