@@ -36,7 +36,59 @@ O projeto foi desenvolvido com foco em uso pessoal, persistência local dos dado
 
 ## Prévia visual
 
-> Em breve.
+### Dashboard
+
+<p align="center">
+  <img src="images/Dashboard.png" alt="Dashboard" width="320">
+</p>
+
+### Despesas gerais
+
+<p align="center">
+  <img src="images/Despesas_gerais.png" alt="Despesas gerais" width="220">
+</p>
+
+### Despesas fixas
+
+<p align="center">
+  <img src="images/Despesas_fixas.png" alt="Despesas fixas" width="320">
+</p>
+
+### Receitas
+
+<p align="center">
+  <img src="images/Receitas.png" alt="Receitas" width="260">
+</p>
+
+### Cartão de crédito
+
+<p align="center">
+  <img src="images/Cartao_de_credito.png" alt="Cartão de crédito" width="220">
+</p>
+
+### Relatórios
+
+<p align="center">
+  <img src="images/Relatorios.png" alt="Relatórios" width="320">
+</p>
+
+### Exportar
+
+<p align="center">
+  <img src="images/Exportar.png" alt="Exportar" width="320">
+</p>
+
+### Rendimento CDI
+
+<p align="center">
+  <img src="images/Rendimento_CDI.png" alt="Rendimento CDI" width="320">
+</p>
+
+### Categorias
+
+<p align="center">
+  <img src="images/Categorias.png" alt="Categorias" width="320">
+</p>
 
 ## Tecnologias
 
