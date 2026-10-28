@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0f172a">
     <title>{% block title %}Controle Financeiro 2{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20261028-darktheme1') }}">
 </head>
 <body>
 <div class="mobile-topbar">
@@ -120,6 +120,7 @@
                     <small>{{ ultimo_backup }}</small>
                 </div>
             </div>
+            <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false">🌙 Tema escuro</button>
             <div class="sidebar-note">Controle Financeiro 2 Web · Visual 2.0</div>
         </div>
     </aside>
@@ -146,5 +147,29 @@
 
 <script src="{{ url_for('static', filename='mobile.js') }}"></script>
 <script src="{{ url_for('static', filename='quick_filters.js') }}"></script>
+
+<script>
+(function () {
+    const root = document.documentElement;
+    const button = document.getElementById("theme-toggle");
+    let savedTheme = "light";
+    try { savedTheme = localStorage.getItem("cf2-theme") || "light"; } catch (e) {}
+    function applyTheme(theme) {
+        root.setAttribute("data-theme", theme);
+        if (button) {
+            const dark = theme === "dark";
+            button.textContent = dark ? "☀️ Tema claro" : "🌙 Tema escuro";
+            button.setAttribute("aria-pressed", dark ? "true" : "false");
+        }
+    }
+    applyTheme(savedTheme);
+    if (button) button.addEventListener("click", function () {
+        const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        applyTheme(next);
+        try { localStorage.setItem("cf2-theme", next); } catch (e) {}
+    });
+})();
+</script>
+
 </body>
 </html>
