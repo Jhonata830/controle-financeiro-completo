@@ -2393,3 +2393,117 @@ button.danger,
     padding-top:14px;
     border-top:1px solid var(--border);
 }
+
+
+/* Tema escuro: contraste consistente em páginas, cartões e formulários */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:#111827; --surface:#1f2937; --surface-soft:#273449;
+  --surface-accent:#263449; --text:#f3f4f6; --muted:#b6c2d2;
+  --border:#374151; --border-strong:#4b5563;
+  --accent:#818cf8; --accent-strong:#a5b4fc; --accent-soft:#273449;
+  --success:#86efac; --success-bg:#123d32;
+  --warning:#fcd34d; --warning-bg:#422d18;
+  --danger:#fda4af; --danger-bg:#451a24;
+  --sidebar:#111827; --sidebar-2:#1f2937;
+  --shadow:none; --shadow-hover:none;
+}
+:root[data-theme="dark"] html,
+:root[data-theme="dark"] body { background:var(--bg)!important; color:var(--text)!important; }
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] strong,
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] label { color:var(--text); }
+:root[data-theme="dark"] .eyebrow,
+:root[data-theme="dark"] .help-text,
+:root[data-theme="dark"] small { color:#cbd5e1; }
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .simple-summary,
+:root[data-theme="dark"] .mini-summary-card,
+:root[data-theme="dark"] .report-card,
+:root[data-theme="dark"] .category-intro,
+:root[data-theme="dark"] .income-summary,
+:root[data-theme="dark"] .yield-dashboard-card,
+:root[data-theme="dark"] .yield-info-panel,
+:root[data-theme="dark"] .yield-recalc-panel,
+:root[data-theme="dark"] .credit-card-item,
+:root[data-theme="dark"] .credit-card-disabled,
+:root[data-theme="dark"] .credit-card-intro,
+:root[data-theme="dark"] .credit-card-flow {
+  background:var(--surface)!important; color:var(--text)!important;
+  border-color:var(--border)!important; box-shadow:none!important;
+}
+:root[data-theme="dark"] .card.featured,
+:root[data-theme="dark"] .income-summary,
+:root[data-theme="dark"] .yield-dashboard-card.active {
+  background:#1f2937!important; color:var(--text)!important; border-color:#374151!important;
+}
+:root[data-theme="dark"] .card strong,
+:root[data-theme="dark"] .simple-summary strong,
+:root[data-theme="dark"] .income-summary strong,
+:root[data-theme="dark"] .mini-summary-card strong,
+:root[data-theme="dark"] .report-card strong,
+:root[data-theme="dark"] .yield-dashboard-card h2,
+:root[data-theme="dark"] .yield-dashboard-card strong {
+  color:var(--text)!important; -webkit-text-fill-color:var(--text)!important;
+}
+:root[data-theme="dark"] .metric-icon,
+:root[data-theme="dark"] .nav-icon,
+:root[data-theme="dark"] .yield-icon,
+:root[data-theme="dark"] .yield-info-icon,
+:root[data-theme="dark"] .yield-dashboard-card .metric-icon,
+:root[data-theme="dark"] .yield-rule-list > div > span {
+  background:#334155!important; color:#e2e8f0!important;
+  border-color:#475569!important; -webkit-text-fill-color:#e2e8f0!important;
+}
+:root[data-theme="dark"] .filters,
+:root[data-theme="dark"] .count,
+:root[data-theme="dark"] .category-admin-item,
+:root[data-theme="dark"] .path,
+:root[data-theme="dark"] .credit-card-item-icon,
+:root[data-theme="dark"] .yield-rate-preview,
+:root[data-theme="dark"] .yield-tax-note,
+:root[data-theme="dark"] .yield-rule-list > div {
+  background:#1f2937!important; color:var(--text)!important; border-color:var(--border)!important;
+}
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] .input-suffix > span {
+  background:#111827!important; color:#f3f4f6!important; border-color:#4b5563!important;
+}
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder { color:#94a3b8!important; }
+:root[data-theme="dark"] .button.secondary,
+:root[data-theme="dark"] .button.ghost,
+:root[data-theme="dark"] .mini-button {
+  background:#273449!important; color:#e0e7ff!important; border-color:#4b5563!important;
+}
+:root[data-theme="dark"] .table-wrap { border-color:var(--border)!important; }
+:root[data-theme="dark"] table { background:#1f2937!important; color:var(--text)!important; }
+:root[data-theme="dark"] th { background:#273449!important; color:#cbd5e1!important; border-color:var(--border)!important; }
+:root[data-theme="dark"] td { color:#e5e7eb!important; border-color:var(--border)!important; }
+:root[data-theme="dark"] tbody tr:hover { background:#273449!important; }
+:root[data-theme="dark"] .badge.pago,
+:root[data-theme="dark"] .badge.ativo,
+:root[data-theme="dark"] .yield-status.active { background:#123d32!important; color:#bbf7d0!important; border-color:#166534!important; }
+:root[data-theme="dark"] .badge.pendente,
+:root[data-theme="dark"] .badge.inativo,
+:root[data-theme="dark"] .yield-status:not(.active) { background:#422d18!important; color:#fde68a!important; border-color:#92400e!important; }
+:root[data-theme="dark"] .message { background:#1f2937!important; color:#f3f4f6!important; border-color:var(--border)!important; }
+:root[data-theme="dark"] .report-track { background:#374151!important; }
+:root[data-theme="dark"] .yield-rule-list > div p,
+:root[data-theme="dark"] .yield-rule-list > div p strong { color:#f3f4f6!important; }
+:root[data-theme="dark"] .yield-rule-list > div p { -webkit-text-fill-color:#f3f4f6!important; }
+:root[data-theme="dark"] .yield-tax-note p,
+:root[data-theme="dark"] .yield-info-panel p,
+:root[data-theme="dark"] .yield-recalc-panel p { color:#cbd5e1!important; }
+.theme-toggle {
+  width:100%; margin-top:10px; min-height:42px; justify-content:flex-start;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+  color:#f8fafc; box-shadow:none; font-size:12px;
+}
+.theme-toggle:hover { background:rgba(255,255,255,.11); transform:none; box-shadow:none; }
