@@ -2395,115 +2395,364 @@ button.danger,
 }
 
 
-/* Tema escuro: contraste consistente em páginas, cartões e formulários */
+/* Alternância de tema claro/escuro */
 :root[data-theme="dark"] {
-  color-scheme: dark;
-  --bg:#111827; --surface:#1f2937; --surface-soft:#273449;
-  --surface-accent:#263449; --text:#f3f4f6; --muted:#b6c2d2;
-  --border:#374151; --border-strong:#4b5563;
-  --accent:#818cf8; --accent-strong:#a5b4fc; --accent-soft:#273449;
-  --success:#86efac; --success-bg:#123d32;
-  --warning:#fcd34d; --warning-bg:#422d18;
-  --danger:#fda4af; --danger-bg:#451a24;
-  --sidebar:#111827; --sidebar-2:#1f2937;
-  --shadow:none; --shadow-hover:none;
+    color-scheme: dark;
+    --bg:#111827;
+    --surface:#1f2937;
+    --surface-soft:#273449;
+    --surface-accent:#26354f;
+    --text:#f3f4f6;
+    --muted:#aab6c8;
+    --border:#374151;
+    --border-strong:#4b5563;
+    --accent:#818cf8;
+    --accent-strong:#a5b4fc;
+    --accent-soft:#312e81;
+    --success:#4ade80;
+    --success-bg:#123326;
+    --danger:#f87171;
+    --danger-bg:#3f1d25;
+    --warning:#fbbf24;
+    --warning-bg:#422d12;
 }
-:root[data-theme="dark"] html,
-:root[data-theme="dark"] body { background:var(--bg)!important; color:var(--text)!important; }
-:root[data-theme="dark"] h1,
-:root[data-theme="dark"] h2,
-:root[data-theme="dark"] h3,
-:root[data-theme="dark"] strong,
-:root[data-theme="dark"] p,
-:root[data-theme="dark"] label { color:var(--text); }
-:root[data-theme="dark"] .eyebrow,
-:root[data-theme="dark"] .help-text,
-:root[data-theme="dark"] small { color:#cbd5e1; }
-:root[data-theme="dark"] .card,
-:root[data-theme="dark"] .panel,
-:root[data-theme="dark"] .simple-summary,
-:root[data-theme="dark"] .mini-summary-card,
-:root[data-theme="dark"] .report-card,
-:root[data-theme="dark"] .category-intro,
-:root[data-theme="dark"] .income-summary,
-:root[data-theme="dark"] .yield-dashboard-card,
-:root[data-theme="dark"] .yield-info-panel,
-:root[data-theme="dark"] .yield-recalc-panel,
-:root[data-theme="dark"] .credit-card-item,
-:root[data-theme="dark"] .credit-card-disabled,
-:root[data-theme="dark"] .credit-card-intro,
-:root[data-theme="dark"] .credit-card-flow {
-  background:var(--surface)!important; color:var(--text)!important;
-  border-color:var(--border)!important; box-shadow:none!important;
-}
-:root[data-theme="dark"] .card.featured,
-:root[data-theme="dark"] .income-summary,
-:root[data-theme="dark"] .yield-dashboard-card.active {
-  background:#1f2937!important; color:var(--text)!important; border-color:#374151!important;
-}
-:root[data-theme="dark"] .card strong,
-:root[data-theme="dark"] .simple-summary strong,
-:root[data-theme="dark"] .income-summary strong,
-:root[data-theme="dark"] .mini-summary-card strong,
-:root[data-theme="dark"] .report-card strong,
-:root[data-theme="dark"] .yield-dashboard-card h2,
-:root[data-theme="dark"] .yield-dashboard-card strong {
-  color:var(--text)!important; -webkit-text-fill-color:var(--text)!important;
-}
-:root[data-theme="dark"] .metric-icon,
-:root[data-theme="dark"] .nav-icon,
-:root[data-theme="dark"] .yield-icon,
-:root[data-theme="dark"] .yield-info-icon,
-:root[data-theme="dark"] .yield-dashboard-card .metric-icon,
-:root[data-theme="dark"] .yield-rule-list > div > span {
-  background:#334155!important; color:#e2e8f0!important;
-  border-color:#475569!important; -webkit-text-fill-color:#e2e8f0!important;
-}
-:root[data-theme="dark"] .filters,
-:root[data-theme="dark"] .count,
-:root[data-theme="dark"] .category-admin-item,
-:root[data-theme="dark"] .path,
-:root[data-theme="dark"] .credit-card-item-icon,
-:root[data-theme="dark"] .yield-rate-preview,
-:root[data-theme="dark"] .yield-tax-note,
-:root[data-theme="dark"] .yield-rule-list > div {
-  background:#1f2937!important; color:var(--text)!important; border-color:var(--border)!important;
-}
+:root[data-theme="dark"] body { background:var(--bg); color:var(--text); }
 :root[data-theme="dark"] input,
 :root[data-theme="dark"] select,
-:root[data-theme="dark"] textarea,
-:root[data-theme="dark"] .input-suffix > span {
-  background:#111827!important; color:#f3f4f6!important; border-color:#4b5563!important;
+:root[data-theme="dark"] textarea { background:#111827; color:var(--text); border-color:var(--border-strong); }
+:root[data-theme="dark"] table { color:var(--text); }
+:root[data-theme="dark"] th { background:#263449; color:#e5e7eb; }
+:root[data-theme="dark"] td { border-color:var(--border); }
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .mini-summary-card,
+:root[data-theme="dark"] .yield-info-panel,
+:root[data-theme="dark"] .sidebar { background:var(--surface); color:var(--text); border-color:var(--border); }
+.theme-toggle { display:block; width:100%; margin:12px 0; padding:10px 12px; border:1px solid var(--border-strong); border-radius:10px; background:var(--surface-soft); color:var(--text); cursor:pointer; text-align:left; font:inherit; }
+.monthly-edit-panel { scroll-margin-top:18px; }
+
+
+/* ==========================================================
+   CORREÇÃO DEFINITIVA DE CONTRASTE — TEMA ESCURO
+   Cobre componentes antigos que ainda tinham cores claras fixas.
+   ========================================================== */
+:root[data-theme="dark"] body .content-inner {
+    color: var(--text) !important;
 }
-:root[data-theme="dark"] input::placeholder,
-:root[data-theme="dark"] textarea::placeholder { color:#94a3b8!important; }
-:root[data-theme="dark"] .button.secondary,
-:root[data-theme="dark"] .button.ghost,
-:root[data-theme="dark"] .mini-button {
-  background:#273449!important; color:#e0e7ff!important; border-color:#4b5563!important;
+
+:root[data-theme="dark"] body .content-inner .panel,
+:root[data-theme="dark"] body .content-inner .form-panel,
+:root[data-theme="dark"] body .content-inner .mini-summary-card,
+:root[data-theme="dark"] body .content-inner .yield-info-panel,
+:root[data-theme="dark"] body .content-inner .yield-dashboard-card,
+:root[data-theme="dark"] body .content-inner .yield-recalc-panel,
+:root[data-theme="dark"] body .content-inner .yield-toggle-row,
+:root[data-theme="dark"] body .content-inner .yield-rate-preview,
+:root[data-theme="dark"] body .content-inner .yield-rule-list > div,
+:root[data-theme="dark"] body .content-inner .quick-filters,
+:root[data-theme="dark"] body .content-inner .quick-filters.has-active-filter,
+:root[data-theme="dark"] body .content-inner .quick-filter-empty,
+:root[data-theme="dark"] body .content-inner .export-intro,
+:root[data-theme="dark"] body .content-inner .export-warning,
+:root[data-theme="dark"] body .content-inner .category-admin-item,
+:root[data-theme="dark"] body .content-inner .path,
+:root[data-theme="dark"] body .content-inner .credit-card-summary,
+:root[data-theme="dark"] body .content-inner .credit-card-auto-info,
+:root[data-theme="dark"] body .content-inner .credit-card-item,
+:root[data-theme="dark"] body .content-inner .credit-card-empty-list,
+:root[data-theme="dark"] body .content-inner .credit-card-month-nav,
+:root[data-theme="dark"] body .content-inner .credit-card-service-invoice,
+:root[data-theme="dark"] body .content-inner .table-wrap,
+:root[data-theme="dark"] body .content-inner .quick-filter-empty {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
 }
-:root[data-theme="dark"] .table-wrap { border-color:var(--border)!important; }
-:root[data-theme="dark"] table { background:#1f2937!important; color:var(--text)!important; }
-:root[data-theme="dark"] th { background:#273449!important; color:#cbd5e1!important; border-color:var(--border)!important; }
-:root[data-theme="dark"] td { color:#e5e7eb!important; border-color:var(--border)!important; }
-:root[data-theme="dark"] tbody tr:hover { background:#273449!important; }
-:root[data-theme="dark"] .badge.pago,
-:root[data-theme="dark"] .badge.ativo,
-:root[data-theme="dark"] .yield-status.active { background:#123d32!important; color:#bbf7d0!important; border-color:#166534!important; }
-:root[data-theme="dark"] .badge.pendente,
-:root[data-theme="dark"] .badge.inativo,
-:root[data-theme="dark"] .yield-status:not(.active) { background:#422d18!important; color:#fde68a!important; border-color:#92400e!important; }
-:root[data-theme="dark"] .message { background:#1f2937!important; color:#f3f4f6!important; border-color:var(--border)!important; }
-:root[data-theme="dark"] .report-track { background:#374151!important; }
-:root[data-theme="dark"] .yield-rule-list > div p,
-:root[data-theme="dark"] .yield-rule-list > div p strong { color:#f3f4f6!important; }
-:root[data-theme="dark"] .yield-rule-list > div p { -webkit-text-fill-color:#f3f4f6!important; }
-:root[data-theme="dark"] .yield-tax-note p,
-:root[data-theme="dark"] .yield-info-panel p,
-:root[data-theme="dark"] .yield-recalc-panel p { color:#cbd5e1!important; }
-.theme-toggle {
-  width:100%; margin-top:10px; min-height:42px; justify-content:flex-start;
-  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
-  color:#f8fafc; box-shadow:none; font-size:12px;
+
+:root[data-theme="dark"] body .content-inner .expense-form,
+:root[data-theme="dark"] body .content-inner .income-form,
+:root[data-theme="dark"] body .content-inner .recurrence-form,
+:root[data-theme="dark"] body .content-inner .credit-card-config-form,
+:root[data-theme="dark"] body .content-inner .credit-card-service-form,
+:root[data-theme="dark"] body .content-inner form .form-row,
+:root[data-theme="dark"] body .content-inner form .form-group,
+:root[data-theme="dark"] body .content-inner form .form-field,
+:root[data-theme="dark"] body .content-inner form .field,
+:root[data-theme="dark"] body .content-inner form fieldset {
+    background-color: transparent !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
 }
-.theme-toggle:hover { background:rgba(255,255,255,.11); transform:none; box-shadow:none; }
+
+:root[data-theme="dark"] body .content-inner input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+:root[data-theme="dark"] body .content-inner select,
+:root[data-theme="dark"] body .content-inner textarea,
+:root[data-theme="dark"] body .content-inner input[type="search"] {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+    -webkit-text-fill-color: #f9fafb !important;
+    color-scheme: dark;
+}
+
+:root[data-theme="dark"] body .content-inner select option {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+}
+
+:root[data-theme="dark"] body .content-inner input::placeholder,
+:root[data-theme="dark"] body .content-inner textarea::placeholder {
+    color: #9ca3af !important;
+    -webkit-text-fill-color: #9ca3af !important;
+    opacity: 1;
+}
+
+:root[data-theme="dark"] body .content-inner label,
+:root[data-theme="dark"] body .content-inner .panel-title,
+:root[data-theme="dark"] body .content-inner .panel-title h2,
+:root[data-theme="dark"] body .content-inner .panel-title h3,
+:root[data-theme="dark"] body .content-inner .panel p,
+:root[data-theme="dark"] body .content-inner .panel span,
+:root[data-theme="dark"] body .content-inner .panel small,
+:root[data-theme="dark"] body .content-inner .export-stats,
+:root[data-theme="dark"] body .content-inner .export-file-list {
+    color: var(--text);
+}
+
+:root[data-theme="dark"] body .content-inner table {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+}
+:root[data-theme="dark"] body .content-inner thead th,
+:root[data-theme="dark"] body .content-inner th {
+    background: #263449 !important;
+    color: #f3f4f6 !important;
+    border-color: var(--border) !important;
+}
+:root[data-theme="dark"] body .content-inner tbody tr,
+:root[data-theme="dark"] body .content-inner .table-wrap tbody tr,
+:root[data-theme="dark"] body .content-inner tbody tr:hover,
+:root[data-theme="dark"] body .content-inner .table-wrap tbody tr:hover {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+}
+:root[data-theme="dark"] body .content-inner td {
+    color: var(--text);
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] body .content-inner .metric-icon,
+:root[data-theme="dark"] body .content-inner .count,
+:root[data-theme="dark"] body .content-inner .origin,
+:root[data-theme="dark"] body .content-inner .mini-button,
+:root[data-theme="dark"] body .content-inner .button.secondary,
+:root[data-theme="dark"] body .content-inner .button.ghost,
+:root[data-theme="dark"] body .content-inner .export-card-icon,
+:root[data-theme="dark"] body .content-inner .export-stats span,
+:root[data-theme="dark"] body .content-inner .export-file-list span {
+    background: #273449 !important;
+    color: #e5e7eb !important;
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] body .content-inner .message {
+    background: #273449 !important;
+    color: #f3f4f6 !important;
+    border-color: var(--border) !important;
+}
+:root[data-theme="dark"] body .content-inner .badge.pendente,
+:root[data-theme="dark"] body .content-inner .badge.atrasada,
+:root[data-theme="dark"] body .content-inner .badge.inativa,
+:root[data-theme="dark"] body .content-inner .badge.inativo {
+    background: #3b2f1c !important;
+    color: #fcd34d !important;
+    border-color: #66502a !important;
+}
+:root[data-theme="dark"] body .content-inner .yield-tax-note,
+:root[data-theme="dark"] body .content-inner .yield-tax-note-ok {
+    background: #273449 !important;
+    color: #e5e7eb !important;
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] body .content-inner [style*="background:#fff"],
+:root[data-theme="dark"] body .content-inner [style*="background: #fff"],
+:root[data-theme="dark"] body .content-inner [style*="background-color:#fff"],
+:root[data-theme="dark"] body .content-inner [style*="background-color: #fff"],
+:root[data-theme="dark"] body .content-inner [style*="background: white"],
+:root[data-theme="dark"] body .content-inner [style*="background-color: white"] {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+}
+
+
+/* ==========================================================
+   AJUSTE V2 — componentes claros que persistiam no dashboard
+   ========================================================== */
+:root[data-theme="dark"] body .content-inner .filters {
+    background: #1f2937 !important;
+    color: #f3f4f6 !important;
+    border-color: #374151 !important;
+    box-shadow: none !important;
+}
+:root[data-theme="dark"] body .content-inner .filters label {
+    color: #cbd5e1 !important;
+}
+:root[data-theme="dark"] body .content-inner .card.featured,
+:root[data-theme="dark"] body .content-inner .metric-balance,
+:root[data-theme="dark"] body .content-inner .metric-forecast {
+    background: #1f2937 !important;
+    color: #f3f4f6 !important;
+    border-color: #374151 !important;
+}
+:root[data-theme="dark"] body .content-inner .card.featured .metric-top,
+:root[data-theme="dark"] body .content-inner .card.featured .metric-top > span:not(.metric-icon),
+:root[data-theme="dark"] body .content-inner .card.featured strong {
+    color: #f3f4f6 !important;
+    -webkit-text-fill-color: #f3f4f6 !important;
+}
+:root[data-theme="dark"] body .content-inner .card.featured .metric-icon {
+    background: #123d3a !important;
+    color: #99f6e4 !important;
+}
+:root[data-theme="dark"] body .content-inner .yield-dashboard-card {
+    background: #1f2937 !important;
+    color: #f3f4f6 !important;
+    border-color: #374151 !important;
+    box-shadow: none !important;
+}
+:root[data-theme="dark"] body .content-inner .yield-dashboard-card h2,
+:root[data-theme="dark"] body .content-inner .yield-dashboard-card p,
+:root[data-theme="dark"] body .content-inner .yield-dashboard-card .eyebrow,
+:root[data-theme="dark"] body .content-inner .yield-dashboard-card .yield-dashboard-description {
+    color: #f3f4f6 !important;
+}
+:root[data-theme="dark"] body .content-inner .yield-dashboard-stats > div {
+    background: #111827 !important;
+    color: #f3f4f6 !important;
+    border-color: #374151 !important;
+}
+:root[data-theme="dark"] body .content-inner .yield-dashboard-stats > div > span,
+:root[data-theme="dark"] body .content-inner .yield-dashboard-stats > div > small {
+    color: #cbd5e1 !important;
+}
+:root[data-theme="dark"] body .content-inner .yield-dashboard-stats > div > strong {
+    color: #f3f4f6 !important;
+    -webkit-text-fill-color: #f3f4f6 !important;
+}
+:root[data-theme="dark"] body .content-inner .yield-dashboard-stats > div > strong.positive {
+    color: #86efac !important;
+    -webkit-text-fill-color: #86efac !important;
+}
+:root[data-theme="dark"] body .content-inner .yield-dashboard-card .button.secondary {
+    background: #273449 !important;
+    color: #c7d2fe !important;
+    border-color: #4b5563 !important;
+}
+
+
+/* ==========================================================
+   AJUSTE V3 — resumos, status e ícones no tema escuro
+   ========================================================== */
+:root[data-theme="dark"] body .simple-summary,
+:root[data-theme="dark"] body .income-summary {
+    background: #1f2937 !important;
+    color: #f3f4f6 !important;
+    border: 1px solid #374151 !important;
+    box-shadow: none !important;
+}
+:root[data-theme="dark"] body .simple-summary *,
+:root[data-theme="dark"] body .income-summary * {
+    color: #f3f4f6 !important;
+    -webkit-text-fill-color: #f3f4f6 !important;
+}
+:root[data-theme="dark"] body .simple-summary span,
+:root[data-theme="dark"] body .income-summary span {
+    color: #cbd5e1 !important;
+    -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+/* Botões/etiquetas de pago, pendente e situação ativa/inativa */
+:root[data-theme="dark"] body .badge,
+:root[data-theme="dark"] body .yield-status {
+    background: #334155 !important;
+    color: #e2e8f0 !important;
+    border-color: #475569 !important;
+    box-shadow: none !important;
+}
+:root[data-theme="dark"] body .badge.pago,
+:root[data-theme="dark"] body .badge.ativa,
+:root[data-theme="dark"] body .badge.ativo,
+:root[data-theme="dark"] body .yield-status.active {
+    background: #123d32 !important;
+    color: #bbf7d0 !important;
+    border-color: #166534 !important;
+}
+:root[data-theme="dark"] body .badge.pendente,
+:root[data-theme="dark"] body .badge.inativa,
+:root[data-theme="dark"] body .badge.inativo,
+:root[data-theme="dark"] body .yield-status:not(.active) {
+    background: #422d18 !important;
+    color: #fde68a !important;
+    border-color: #92400e !important;
+}
+
+/* Ícones e áreas clicáveis da navegação e do rendimento CDI */
+:root[data-theme="dark"] body .nav-icon,
+:root[data-theme="dark"] body .nav-item .nav-icon,
+:root[data-theme="dark"] body .icon,
+:root[data-theme="dark"] body .icon-box,
+:root[data-theme="dark"] body .yield-icon,
+:root[data-theme="dark"] body .yield-dashboard-card .metric-icon {
+    background-color: #273449 !important;
+    color: #c7d2fe !important;
+    border-color: #475569 !important;
+    -webkit-text-fill-color: #c7d2fe !important;
+}
+:root[data-theme="dark"] body .yield-dashboard-card .yield-status,
+:root[data-theme="dark"] body .yield-dashboard-card .yield-status.active {
+    color: #bbf7d0 !important;
+    -webkit-text-fill-color: #bbf7d0 !important;
+}
+
+/* Botões compactos de status Pago/Pendente */
+:root[data-theme="dark"] body .mini-button,
+:root[data-theme="dark"] body button.success,
+:root[data-theme="dark"] body button.warning {
+    border-color: #475569 !important;
+}
+:root[data-theme="dark"] body .mini-button.success,
+:root[data-theme="dark"] body button.success {
+    background: #14532d !important;
+    color: #dcfce7 !important;
+}
+:root[data-theme="dark"] body .mini-button.warning,
+:root[data-theme="dark"] body button.warning {
+    background: #78350f !important;
+    color: #fef3c7 !important;
+}
+
+/* SVGs e ícones de controles: garantir contraste sem clarear os cartões */
+:root[data-theme="dark"] body button svg,
+:root[data-theme="dark"] body a svg,
+:root[data-theme="dark"] body .nav-icon svg {
+    color: inherit !important;
+    stroke: currentColor;
+}
+
+
+/* ==========================================================
+   AJUSTE V4 — Ícones das Regras de Rendimento CDI no Tema Escuro
+   ========================================================== */
+:root[data-theme="dark"] body .yield-rule-list > div > span,
+:root[data-theme="dark"] body .yield-info-icon {
+    background-color: #273449 !important;
+    color: #c7d2fe !important;
+    border: 1px solid #475569 !important;
+    -webkit-text-fill-color: #c7d2fe !important;
+}
+
+:root[data-theme="dark"] body .yield-rule-list > div > span *,
+:root[data-theme="dark"] body .yield-info-icon * {
+    color: #c7d2fe !important;
+    fill: currentColor !important;
+}
